@@ -1,0 +1,12 @@
+ALTER TABLE "requests" ADD COLUMN "request_type" TEXT NOT NULL DEFAULT 'Bonus';
+ALTER TABLE "requests" ADD COLUMN "bonus_amount" DECIMAL(12, 2);
+ALTER TABLE "requests" ADD COLUMN "bonus_description" TEXT;
+ALTER TABLE "requests" ADD COLUMN "gift_amount" DECIMAL(12, 2);
+ALTER TABLE "requests" ADD COLUMN "gift_description" TEXT;
+ALTER TABLE "requests" ADD COLUMN "correction_direction" TEXT;
+ALTER TABLE "requests" ADD COLUMN "correction_amount" DECIMAL(12, 2);
+ALTER TABLE "requests" ADD COLUMN "correction_description" TEXT;
+ALTER TABLE "requests" ADD COLUMN "bet_id" TEXT;
+ALTER TABLE "requests" ADD COLUMN "game_name" TEXT;
+ALTER TABLE "requests" ADD COLUMN "bet_description" TEXT;
+ALTER TABLE "requests" ADD COLUMN "command_text" TEXT;

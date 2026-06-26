@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #071113;
+  color: #e8f3ef;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #274144;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0d191c;
+}
+
+.field {
+  @apply w-full rounded-md border border-line bg-panelSoft px-3 py-2 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-mint;
+}
+
+.label {
+  @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-400;
+}
+
+.btn {
+  @apply inline-flex h-10 items-center justify-center gap-2 rounded-md px-4 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+.btn-primary {
+  @apply bg-mint text-ink hover:bg-emerald-300;
+}
+
+.btn-secondary {
+  @apply border border-line bg-panelSoft text-slate-100 hover:border-slate-500;
+}
+
+.status-pill {
+  @apply inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold;
+}
