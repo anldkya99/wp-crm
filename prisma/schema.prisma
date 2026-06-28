@@ -189,6 +189,8 @@ model Message {
   id             String        @id @default(cuid())
   conversationId String        @map("conversation_id")
   lineId         String?       @map("line_id")
+  providerType   String?       @map("provider_type")
+  providerMessageId String?    @map("provider_message_id")
   senderType     SenderType    @map("sender_type")
   messageText    String        @map("message_text")
   status         MessageStatus @default(SENT)
@@ -198,7 +200,10 @@ model Message {
   line           CommunicationLine? @relation(fields: [lineId], references: [id])
   creator        User?         @relation("MessageCreator", fields: [createdBy], references: [id])
   ttsUsageLogs   TtsUsageLog[]
+  queueItems      MessageSendQueue[]
 
+  @@unique([providerType, providerMessageId])
+  @@index([lineId])
   @@map("messages")
 }
 
@@ -227,9 +232,66 @@ model CommunicationLine {
   conversations   Conversation[]
   operatorSessions OperatorLineSession[]
   sessionLogs     WhatsAppSessionLog[]
+  connectionSession CommunicationSession?
+  connectionLogs   ConnectionActivityLog[]
+  sendQueueItems   MessageSendQueue[]
+  communicationEvents CommunicationEvent[]
 
   @@index([isDefault])
   @@map("communication_lines")
+}
+
+model CommunicationEvent {
+  id          String   @id @default(cuid())
+  lineId      String?  @map("line_id")
+  providerType String  @map("provider_type")
+  eventType   String   @map("event_type")
+  providerMessageId String? @map("provider_message_id")
+  contactPhone String? @map("contact_phone")
+  payloadJson String?  @map("payload_json")
+  status      String   @default("received")
+  processedAt DateTime? @map("processed_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  line        CommunicationLine? @relation(fields: [lineId], references: [id])
+
+  @@unique([providerType, providerMessageId, eventType])
+  @@index([lineId])
+  @@index([providerType])
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("communication_events")
+}
+
+model MessageSendQueue {
+  id          String   @id @default(cuid())
+  messageId   String?  @map("message_id")
+  lineId      String   @map("line_id")
+  providerType String  @map("provider_type")
+  recipientPhone String @map("recipient_phone")
+  messageText String   @map("message_text")
+  status      String   @default("queued")
+  priority    Int      @default(5)
+  attemptCount Int     @default(0) @map("attempt_count")
+  maxAttempts  Int     @default(3) @map("max_attempts")
+  scheduledAt DateTime? @map("scheduled_at")
+  nextAttemptAt DateTime? @map("next_attempt_at")
+  lockedAt    DateTime? @map("locked_at")
+  lastError   String?  @map("last_error")
+  providerMessageId String? @map("provider_message_id")
+  metadataJson String? @map("metadata_json")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  sentAt      DateTime? @map("sent_at")
+  message     Message? @relation(fields: [messageId], references: [id])
+  line        CommunicationLine @relation(fields: [lineId], references: [id])
+
+  @@index([lineId])
+  @@index([providerType])
+  @@index([status])
+  @@index([priority])
+  @@index([scheduledAt])
+  @@index([nextAttemptAt])
+  @@map("message_send_queue")
 }
 
 model WhatsAppSessionLog {
@@ -245,6 +307,47 @@ model WhatsAppSessionLog {
   @@index([eventType])
   @@index([createdAt])
   @@map("whatsapp_session_logs")
+}
+
+model CommunicationSession {
+  id                    String   @id @default(cuid())
+  lineId                String   @unique @map("line_id")
+  providerType          String   @map("provider_type")
+  sessionStatus         String   @default("disconnected") @map("session_status")
+  qrCode                String?  @map("qr_code")
+  lastQrAt              DateTime? @map("last_qr_at")
+  connectedAt           DateTime? @map("connected_at")
+  disconnectedAt        DateTime? @map("disconnected_at")
+  lastHealthCheckAt     DateTime? @map("last_health_check_at")
+  reconnectAttemptCount Int      @default(0) @map("reconnect_attempt_count")
+  lastError             String?  @map("last_error")
+  sessionStoragePath    String?  @map("session_storage_path")
+  sessionKey            String?  @map("session_key")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  line                  CommunicationLine @relation(fields: [lineId], references: [id])
+
+  @@index([providerType])
+  @@index([sessionStatus])
+  @@map("communication_sessions")
+}
+
+model ConnectionActivityLog {
+  id          String   @id @default(cuid())
+  lineId      String?  @map("line_id")
+  providerType String  @map("provider_type")
+  eventType   String   @map("event_type")
+  status      String
+  details     String?
+  metadataJson String? @map("metadata_json")
+  createdAt   DateTime @default(now()) @map("created_at")
+  line        CommunicationLine? @relation(fields: [lineId], references: [id])
+
+  @@index([lineId])
+  @@index([providerType])
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("connection_activity_logs")
 }
 
 model OperatorLineSession {

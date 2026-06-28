@@ -15,14 +15,15 @@ export type SystemGuideSection = {
 };
 
 export const systemGuideLastUpdate = {
-  sprint: "Sprint 11",
-  date: "27 Haz 2026",
+  sprint: "Sprint 13",
+  date: "28 Haz 2026",
   additions: [
-    "WhatsApp Session Manager",
-    "Session Logları",
-    "Hat Sağlık Kontrolü",
-    "Provider Güvenlik Freni",
-    "Gerçek WhatsApp Bağlantı Altyapısı"
+    "Persistent Connection Service",
+    "Provider Health Summary",
+    "Communication Queue v2",
+    "Real QR State Display",
+    "Connection Service Heartbeat",
+    "Communication Hub Veri Hazırlığı"
   ]
 };
 
@@ -132,29 +133,44 @@ export const systemGuideSections: SystemGuideSection[] = [
     category: "İletişim Katmanı",
     sprint: "Sprint 9.5-10",
     lastUpdated: "27 Haz 2026",
-    summary: "WhatsApp numaralarını değiştirilebilir iletişim kanalı ve gerçek session yönetimi hedefli hat havuzu olarak yönetir.",
+    summary: "WhatsApp ve ileride farklı iletişim kanallarını değiştirilebilir communication channel olarak yönetir.",
     users: "Admin / COO yönetir. Takım Lideri ve Operatör kendi yetkisi dahilinde görüntüler.",
     permission: "Hat ekleme, düzenleme, aktif yapma, bloke etme, replacement ve operatöre atama yalnız Admin / COO yetkisindedir.",
     connections: ["Mesajlar", "Çoklu Oturum", "Görev Asistanı", "Timeline", "Üye Transfer Merkezi"],
-    dataStore: ["communication_lines", "operator_line_sessions", "whatsapp_session_logs", "messages.lineId", "conversations.lineId"],
-    operationLogic: "Hat yalnızca gönderim kanalıdır. Session Manager hat başlatma, kapatma, reconnect ve sağlık kontrolü aksiyonlarını yönetir. Müşteri geçmişi hattın içinde yaşamaz; hat değişirse CRM verisi korunur.",
+    dataStore: ["communication_lines", "operator_line_sessions", "communication_sessions", "connection_activity_logs", "whatsapp_session_logs", "messages.lineId", "conversations.lineId"],
+    operationLogic: "Hat yalnızca gönderim kanalıdır. Connection Engine hat başlatma, QR, kapatma, reconnect ve sağlık kontrolü aksiyonlarını yönetir. Müşteri geçmişi hattın içinde yaşamaz; hat değişirse CRM verisi korunur.",
     cautions: ["Aynı hat aynı anda tek oturuma atanmalıdır.", "Bloke/pasif hatta mesaj gönderilmez.", "Gerçek provider yapılandırılmadan non-manual hatlarda fake gönderim yapılmaz.", "Replacement eski hattı arşivler veya bloke bırakır, yeni hattı aktif yapar."],
-    keywords: ["hat", "line", "communication line", "hat havuzu", "session manager", "replacement", "blocked", "archived", "qr", "aktif hat", "health check"]
+    keywords: ["hat", "line", "communication line", "hat havuzu", "connection engine", "session manager", "replacement", "blocked", "archived", "qr", "aktif hat", "health check"]
   },
   {
-    id: "whatsapp-session-manager",
-    title: "WhatsApp Session Manager",
+    id: "connection-engine",
+    title: "Connection Engine",
     category: "İletişim Katmanı",
     sprint: "Sprint 11",
-    lastUpdated: "27 Haz 2026",
-    summary: "Gerçek WhatsApp oturumlarının başlatılması, kapatılması, yeniden bağlanması, sağlık kontrolü ve teknik log altyapısını hazırlar.",
+    lastUpdated: "28 Haz 2026",
+    summary: "WhatsApp ile başlayıp Telegram, e-posta, SMS ve canlı destek gibi provider'lara genişleyebilecek bağlantı motoru ve persistent servis temelidir.",
     users: "Admin / COO yönetir. Operatörler hat durumunu operasyon içinde dolaylı olarak görür.",
-    permission: "Session başlatma, kapatma, reconnect ve sağlık kontrolü Admin / COO yetkisindedir.",
-    connections: ["İletişim Hatları", "Mesajlar", "Timeline", "CommunicationLine", "Session Logları"],
-    dataStore: ["whatsapp_session_logs", "communication_lines.status", "communication_lines.lastConnectedAt"],
-    operationLogic: "Manual hatlar sistem içi kullanım için hazır kabul edilir. Gerçek WhatsApp provider adapter bağlanmadığı sürece whatsapp_web/cloud_api hatlarda sahte QR veya fake gönderim yapılmaz; sistem açık hata üretir.",
-    cautions: ["Provider adapter bağlanmadan gerçek WhatsApp gönderimi yapılmaz.", "Session logları teknik olay kaydıdır, müşteri geçmişini silmez.", "Disconnected/blocked/archived hatlar gönderim dışıdır."],
-    keywords: ["whatsapp session", "session manager", "qr", "reconnect", "disconnect", "health check", "session log", "provider"]
+    permission: "QR, session başlatma, kapatma, reconnect ve sağlık kontrolü Admin / COO yetkisindedir.",
+    connections: ["İletişim Hatları", "Mesajlar", "Provider Adapter", "Background Worker", "Rate Limit"],
+    dataStore: ["communication_sessions", "connection_activity_logs", "whatsapp_session_logs", "communication_lines.status", "message_send_queue"],
+    operationLogic: "CRM Core ayrı kalır. Connection Engine provider adapter'ı seçer, session lifecycle'ı yönetir, persistent service heartbeat üretir, mesaj göndermeden önce queue ve provider durumunu kontrol eder.",
+    cautions: ["Provider adapter bağlanmadan gerçek kanal gönderimi yapılmaz.", "Session bilgisi CRM verisinden ayrıdır.", "Uzun yaşayan socket için Next request lifecycle yerine connection service kullanılmalıdır.", "Telegram ve diğer kanallar adapter olarak eklenmelidir, CRM modeli bozulmamalıdır."],
+    keywords: ["connection engine", "persistent service", "provider health", "provider adapter", "whatsapp session", "telegram", "qr", "reconnect", "disconnect", "health check", "activity log", "anti ban"]
+  },
+  {
+    id: "communication-event-engine",
+    title: "Communication Event Engine",
+    category: "İletişim Katmanı",
+    sprint: "Sprint 12",
+    lastUpdated: "28 Haz 2026",
+    summary: "Provider'lardan gelen mesaj ve bağlantı olaylarını normalize ederek CRM Conversation/Message yapısına aktaracak event katmanıdır.",
+    users: "Developer ve Admin teknik referans olarak kullanır.",
+    permission: "Provider webhook/listener entegrasyonu teknik yetki gerektirir.",
+    connections: ["Connection Engine", "Mesajlar", "CommunicationLine", "Timeline", "Send Queue"],
+    dataStore: ["communication_events", "messages.providerMessageId", "message_send_queue"],
+    operationLogic: "Provider event alır, Event Engine normalize eder, contact/conversation bulunur veya oluşturulur, message kaydedilir ve duplicate providerMessageId engellenir.",
+    cautions: ["CRM verisi provider'a bağımlı hale getirilmemelidir.", "Aynı providerMessageId ikinci kez message oluşturmamalıdır.", "Webhook eventleri idempotent çalışmalıdır."],
+    keywords: ["event engine", "incoming message", "providerMessageId", "send queue", "baileys", "telegram webhook", "communication event"]
   },
   {
     id: "ownership",

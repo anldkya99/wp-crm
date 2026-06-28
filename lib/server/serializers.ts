@@ -1,4 +1,4 @@
-import type { AlarmItem, AutomationDecisionLog, AutomationQuestionAnswer, AutomationRuleSetting, AutomationTaskLog, CommunicationLine, Contact, ContactOwnershipRequest, Conversation, CustomerNote, DailyTask, MemberTag, Message, MessageTemplate, Operator, OperatorLineSession, RequestItem, RequestType, TimelineEvent, TtsUsageLog, VoiceTemplate } from "@/types/domain";
+import type { AlarmItem, AutomationDecisionLog, AutomationQuestionAnswer, AutomationRuleSetting, AutomationTaskLog, CommunicationLine, CommunicationSession, Contact, ContactOwnershipRequest, Conversation, CustomerNote, DailyTask, MemberTag, Message, MessageTemplate, Operator, OperatorLineSession, RequestItem, RequestType, TimelineEvent, TtsUsageLog, VoiceTemplate } from "@/types/domain";
 import { conversationStatusLabels, requestStatusLabels, userRoleLabels, userStatusLabels } from "@/lib/status";
 
 type DbContact = {
@@ -94,6 +94,8 @@ type DbMessage = {
   id: string;
   conversationId: string;
   lineId?: string | null;
+  providerType?: string | null;
+  providerMessageId?: string | null;
   senderType: "CUSTOMER" | "OPERATOR" | "SYSTEM";
   messageText: string;
   status: "SENT" | "DELIVERED" | "READ" | "FAILED";
@@ -132,6 +134,24 @@ type DbOperatorLineSession = {
   isActive: boolean;
   openedAt?: Date | null;
   lastUsedAt?: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+type DbCommunicationSession = {
+  id: string;
+  lineId: string;
+  providerType: string;
+  sessionStatus: string;
+  qrCode?: string | null;
+  lastQrAt?: Date | null;
+  connectedAt?: Date | null;
+  disconnectedAt?: Date | null;
+  lastHealthCheckAt?: Date | null;
+  reconnectAttemptCount: number;
+  lastError?: string | null;
+  sessionStoragePath?: string | null;
+  sessionKey?: string | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -397,6 +417,8 @@ export function serializeMessage(message: DbMessage): Message {
     id: message.id,
     conversationId: message.conversationId,
     lineId: message.lineId ?? undefined,
+    providerType: message.providerType ?? undefined,
+    providerMessageId: message.providerMessageId ?? undefined,
     senderType: message.senderType.toLowerCase() as Message["senderType"],
     messageText: message.messageText,
     status: message.status.toLowerCase() as Message["status"],
@@ -439,6 +461,26 @@ export function serializeOperatorLineSession(session: DbOperatorLineSession): Op
     isActive: session.isActive,
     openedAt: session.openedAt?.toISOString(),
     lastUsedAt: session.lastUsedAt?.toISOString(),
+    createdAt: session.createdAt.toISOString(),
+    updatedAt: session.updatedAt.toISOString()
+  };
+}
+
+export function serializeCommunicationSession(session: DbCommunicationSession): CommunicationSession {
+  return {
+    id: session.id,
+    lineId: session.lineId,
+    providerType: session.providerType,
+    sessionStatus: session.sessionStatus,
+    qrCode: session.qrCode ?? undefined,
+    lastQrAt: session.lastQrAt?.toISOString(),
+    connectedAt: session.connectedAt?.toISOString(),
+    disconnectedAt: session.disconnectedAt?.toISOString(),
+    lastHealthCheckAt: session.lastHealthCheckAt?.toISOString(),
+    reconnectAttemptCount: session.reconnectAttemptCount,
+    lastError: session.lastError ?? undefined,
+    sessionStoragePath: session.sessionStoragePath ?? undefined,
+    sessionKey: session.sessionKey ?? undefined,
     createdAt: session.createdAt.toISOString(),
     updatedAt: session.updatedAt.toISOString()
   };
@@ -653,7 +695,7 @@ function normalizeDecisionType(value: string): AutomationDecisionLog["decisionTy
 }
 
 function normalizeProviderType(value: string): CommunicationLine["providerType"] {
-  if (value === "whatsapp_web" || value === "cloud_api" || value === "manual") return value;
+  if (value === "whatsapp_baileys" || value === "whatsapp_web_js" || value === "whatsapp_web" || value === "whatsapp_cloud_api" || value === "cloud_api" || value === "telegram_bot" || value === "telegram_user" || value === "live_chat" || value === "email" || value === "sms" || value === "manual") return value;
   return "manual";
 }
 

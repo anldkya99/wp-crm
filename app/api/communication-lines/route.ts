@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { serializeCommunicationLine } from "@/lib/server/serializers";
 
 const statuses = new Set(["active", "passive", "connecting", "blocked", "disconnected", "qr_waiting", "connected", "replacement_pending", "archived"]);
-const providerTypes = new Set(["whatsapp_web", "cloud_api", "manual"]);
+const providerTypes = new Set(["whatsapp_baileys", "whatsapp_web_js", "whatsapp_web", "whatsapp_cloud_api", "cloud_api", "telegram_bot", "telegram_user", "live_chat", "email", "sms", "manual"]);
 
 export async function GET() {
   const lines = await prisma.communicationLine.findMany({

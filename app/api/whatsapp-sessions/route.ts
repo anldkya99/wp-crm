@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { whatsappSessionManager } from "@/lib/whatsapp/session-manager";
+import { connectionEngine } from "@/lib/connection-engine/engine";
+import { runConnectionHealthWorker } from "@/lib/connection-engine/worker";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const lineId = searchParams.get("lineId") ?? "";
   const where = lineId ? { lineId } : {};
-  const logs = await prisma.whatsAppSessionLog.findMany({
+  const logs = await prisma.connectionActivityLog.findMany({
     where,
     orderBy: { createdAt: "desc" },
     take: 100
@@ -16,6 +17,7 @@ export async function GET(request: Request) {
       id: log.id,
       lineId: log.lineId,
       eventType: log.eventType,
+      providerType: log.providerType,
       status: log.status,
       details: log.details ?? undefined,
       createdAt: log.createdAt.toISOString()
@@ -30,17 +32,21 @@ export async function POST(request: Request) {
     const lineId = String(body.lineId ?? "");
     const operatorId = String(body.operatorId ?? "") || null;
 
-    if (!lineId) return NextResponse.json({ error: "Hat ID zorunlu." }, { status: 400 });
+    if (!lineId && action !== "worker") return NextResponse.json({ error: "Hat ID zorunlu." }, { status: 400 });
 
     const result =
-      action === "start"
-        ? await whatsappSessionManager.start(lineId, operatorId)
+      action === "qr"
+        ? await connectionEngine.requestQr(lineId, operatorId)
+        : action === "start"
+        ? await connectionEngine.start(lineId, operatorId)
         : action === "stop"
-          ? await whatsappSessionManager.stop(lineId, operatorId)
+          ? await connectionEngine.stop(lineId, operatorId)
           : action === "reconnect"
-            ? await whatsappSessionManager.reconnect(lineId, operatorId)
+            ? await connectionEngine.reconnect(lineId, operatorId)
             : action === "health"
-              ? await whatsappSessionManager.healthCheck(lineId)
+              ? await connectionEngine.healthCheck(lineId)
+              : action === "worker"
+                ? await runConnectionHealthWorker()
               : null;
 
     if (!result) return NextResponse.json({ error: "Geçersiz session aksiyonu." }, { status: 400 });

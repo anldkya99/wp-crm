@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
+import { connectionEngine } from "@/lib/connection-engine/engine";
 import { prisma } from "@/lib/prisma";
 import { serializeConversation, serializeMessage } from "@/lib/server/serializers";
-import { whatsappSessionManager } from "@/lib/whatsapp/session-manager";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -23,9 +23,14 @@ export async function POST(request: Request) {
     : requestedLineId
       ? await prisma.communicationLine.findUnique({ where: { id: requestedLineId } })
       : await prisma.communicationLine.findFirst({ where: { isDefault: true } });
+
   if (!incoming && (!activeLine || !canSendWithLine(activeLine.status))) {
     return NextResponse.json({ error: activeLine ? "Aktif operasyon hattı gönderime uygun değil. Yeni aktif hat seçin." : "Aktif operasyon hattı yok. Mesaj göndermek için önce hat seçin." }, { status: 400 });
   }
+
+  let targetPhone = "";
+  let queuedSendId: string | null = null;
+  let providerMessageId: string | null = null;
 
   if (!incoming) {
     const targetConversation = conversationId ? await prisma.conversation.findUnique({ where: { id: conversationId } }) : null;
@@ -37,15 +42,34 @@ export async function POST(request: Request) {
     if (!canOverrideOwnership && contact?.ownerOperatorId && createdBy && contact.ownerOperatorId !== createdBy) {
       return NextResponse.json({ error: "Bu müşteri farklı bir operatöre ait. Devam etmek için admininizden iletişim izni alın." }, { status: 403 });
     }
+    targetPhone = contact?.phone ?? "";
   }
 
   if (!incoming && activeLine) {
-    const targetConversation = conversationId ? await prisma.conversation.findUnique({ where: { id: conversationId } }) : null;
-    const targetContact = await prisma.contact.findUnique({ where: { id: targetConversation?.contactId ?? contactId } });
+    const queued = await prisma.messageSendQueue.create({
+      data: {
+        lineId: activeLine.id,
+        providerType: activeLine.providerType,
+        recipientPhone: targetPhone,
+        messageText,
+        status: "sending",
+        attemptCount: 1
+      }
+    });
+    queuedSendId = queued.id;
     try {
-      await whatsappSessionManager.sendMessage(activeLine, targetContact?.phone ?? "", messageText);
+      const sendResult = await connectionEngine.sendMessage({ line: activeLine, recipient: targetPhone, messageText });
+      providerMessageId = sendResult.providerMessageId;
+      await prisma.messageSendQueue.update({
+        where: { id: queuedSendId },
+        data: { status: "sent", providerMessageId, sentAt: new Date(), lastError: null }
+      });
     } catch (error) {
-      return NextResponse.json({ error: error instanceof Error ? error.message : "WhatsApp gönderimi tamamlanamadı." }, { status: 502 });
+      await prisma.messageSendQueue.update({
+        where: { id: queuedSendId },
+        data: { status: "failed", lastError: error instanceof Error ? error.message : "Provider gönderimi tamamlanamadı." }
+      });
+      return NextResponse.json({ error: error instanceof Error ? error.message : "Provider gönderimi tamamlanamadı." }, { status: 502 });
     }
   }
 
@@ -67,11 +91,20 @@ export async function POST(request: Request) {
         conversationId: conversation.id,
         senderType: incoming ? "CUSTOMER" : "OPERATOR",
         lineId: incoming ? null : activeLine?.id ?? null,
+        providerType: incoming ? null : activeLine?.providerType ?? null,
+        providerMessageId,
         messageText,
         status: incoming ? "DELIVERED" : "SENT",
         createdBy: incoming ? null : createdBy
       }
     });
+
+    if (queuedSendId) {
+      await tx.messageSendQueue.update({
+        where: { id: queuedSendId },
+        data: { messageId: message.id }
+      });
+    }
 
     const updatedConversation = await tx.conversation.update({
       where: { id: conversation.id },
@@ -107,6 +140,18 @@ export async function POST(request: Request) {
         data: { lastMessageAt: message.createdAt }
       });
     }
+
+    await tx.communicationEvent.create({
+      data: {
+        lineId: incoming ? null : activeLine?.id ?? null,
+        providerType: incoming ? "manual" : activeLine?.providerType ?? "manual",
+        eventType: incoming ? "incoming_message" : "outgoing_message",
+        providerMessageId,
+        payloadJson: JSON.stringify({ messageId: message.id, conversationId: conversation.id }),
+        status: "processed",
+        processedAt: message.createdAt
+      }
+    });
 
     await tx.timelineEvent.create({
       data: {

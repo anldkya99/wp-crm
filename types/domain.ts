@@ -96,6 +96,8 @@ export type Message = {
   id: string;
   conversationId: string;
   lineId?: string;
+  providerType?: string;
+  providerMessageId?: string;
   senderType: "customer" | "operator" | "system";
   messageText: string;
   status: "sent" | "delivered" | "read";
@@ -108,7 +110,7 @@ export type CommunicationLine = {
   name: string;
   phoneNumber: string;
   countryCode: string;
-  providerType: "whatsapp_web" | "cloud_api" | "manual";
+  providerType: "whatsapp_baileys" | "whatsapp_web_js" | "whatsapp_web" | "whatsapp_cloud_api" | "cloud_api" | "telegram_bot" | "telegram_user" | "live_chat" | "email" | "sms" | "manual";
   status: "active" | "passive" | "connecting" | "blocked" | "disconnected" | "qr_waiting" | "connected" | "replacement_pending" | "archived";
   isDefault: boolean;
   lastConnectedAt?: string;
@@ -133,6 +135,24 @@ export type WhatsAppSessionLog = {
   status: string;
   details?: string;
   createdAt: string;
+};
+
+export type CommunicationSession = {
+  id: string;
+  lineId: string;
+  providerType: string;
+  sessionStatus: string;
+  qrCode?: string;
+  lastQrAt?: string;
+  connectedAt?: string;
+  disconnectedAt?: string;
+  lastHealthCheckAt?: string;
+  reconnectAttemptCount: number;
+  lastError?: string;
+  sessionStoragePath?: string;
+  sessionKey?: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type OperatorLineSession = {
@@ -317,6 +337,7 @@ export type AppData = {
   templates: MessageTemplate[];
   voiceTemplates: VoiceTemplate[];
   communicationLines: CommunicationLine[];
+  communicationSessions?: CommunicationSession[];
   whatsappSessionLogs?: WhatsAppSessionLog[];
   operatorLineSessions: OperatorLineSession[];
   ownershipRequests: ContactOwnershipRequest[];

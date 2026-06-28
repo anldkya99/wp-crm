@@ -41,6 +41,7 @@ const emptyData: AppData = {
   templates: [],
   voiceTemplates: [],
   communicationLines: [],
+  communicationSessions: [],
   operatorLineSessions: [],
   ownershipRequests: [],
   memberTags: [],
@@ -1307,7 +1308,7 @@ export default function Home() {
     await loadData();
   }
 
-  async function runLineSessionAction(line: AppData["communicationLines"][number], action: "start" | "stop" | "reconnect" | "health") {
+  async function runLineSessionAction(line: AppData["communicationLines"][number], action: "qr" | "start" | "stop" | "reconnect" | "health" | "worker") {
     if (!canManageOwnership) return;
     const payload = await postJson("/api/whatsapp-sessions", { lineId: line.id, action, operatorId: user?.id });
     if (!payload) return;
@@ -2266,7 +2267,13 @@ export default function Home() {
                   <Input label="Hat adı" value={lineForm.name} onChange={(value) => setLineForm({ ...lineForm, name: value })} />
                   <Input label="Telefon" value={lineForm.phoneNumber} onChange={(value) => setLineForm({ ...lineForm, phoneNumber: value })} />
                   <Input label="Ülke kodu" value={lineForm.countryCode} onChange={(value) => setLineForm({ ...lineForm, countryCode: value })} />
-                  <Select label="Provider" value={lineForm.providerType} options={["manual", "whatsapp_web", "cloud_api"]} optionLabels={{ manual: "Manual", whatsapp_web: "WhatsApp Web", cloud_api: "Cloud API" }} onChange={(value) => setLineForm({ ...lineForm, providerType: value })} />
+                  <Select
+                    label="Provider"
+                    value={lineForm.providerType}
+                    options={["manual", "whatsapp_baileys", "whatsapp_web_js", "whatsapp_cloud_api", "telegram_bot", "telegram_user", "live_chat", "email", "sms"]}
+                    optionLabels={{ manual: "Manual", whatsapp_baileys: "WhatsApp Baileys", whatsapp_web_js: "WhatsApp Web.js", whatsapp_cloud_api: "WhatsApp Cloud API", telegram_bot: "Telegram Bot", telegram_user: "Telegram User", live_chat: "Canlı Destek", email: "E-posta", sms: "SMS" }}
+                    onChange={(value) => setLineForm({ ...lineForm, providerType: value })}
+                  />
                   <Select label="Durum" value={lineForm.status} options={["active", "passive", "connecting", "blocked", "disconnected", "qr_waiting", "connected", "replacement_pending", "archived"]} optionLabels={lineStatusLabels} onChange={(value) => setLineForm({ ...lineForm, status: value })} />
                   <Select
                     label="Atanan operatör"
@@ -2305,6 +2312,7 @@ export default function Home() {
                     const assignedOperator = line.assignedOperatorId ? data.operators.find((operator) => operator.id === line.assignedOperatorId) : undefined;
                     const replacementOf = line.replacementOfLineId ? data.communicationLines.find((item) => item.id === line.replacementOfLineId) : undefined;
                     const replacedBy = line.replacedByLineId ? data.communicationLines.find((item) => item.id === line.replacedByLineId) : undefined;
+                    const session = scopedData.communicationSessions?.find((item) => item.lineId === line.id);
                     return (
                     <article key={line.id} className="rounded-md border border-line bg-ink/35 p-4">
                       <div className="grid gap-3 xl:grid-cols-[1.1fr_120px_120px_120px_130px_160px_150px_auto] xl:items-center">
@@ -2327,6 +2335,7 @@ export default function Home() {
                         </div>
                         <div className="flex flex-wrap justify-end gap-2">
                           <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => editCommunicationLine(line)} disabled={!canManageOwnership}>Düzenle</button>
+                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void runLineSessionAction(line, "qr")} disabled={!canManageOwnership || line.status === "blocked" || line.status === "archived"}>QR Oluştur</button>
                           <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void runLineSessionAction(line, "start")} disabled={!canManageOwnership || line.status === "blocked" || line.status === "archived"}>Bağlan</button>
                           <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void runLineSessionAction(line, "reconnect")} disabled={!canManageOwnership || line.status === "blocked" || line.status === "archived"}>Yeniden Bağlan</button>
                           <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void runLineSessionAction(line, "health")} disabled={!canManageOwnership}>Sağlık</button>
@@ -2337,6 +2346,19 @@ export default function Home() {
                           <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void updateLineStatus(line, "qr_waiting")} disabled={!canManageOwnership}>QR Bekliyor</button>
                         </div>
                       </div>
+                      {session && (
+                        <div className="mt-3 rounded-md border border-line bg-panelSoft p-3 text-xs text-slate-400">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-semibold text-slate-200">Session: {session.sessionStatus}</span>
+                            {session.lastHealthCheckAt && <span>Heartbeat: {formatDate(session.lastHealthCheckAt)}</span>}
+                            {session.reconnectAttemptCount > 0 && <span>Reconnect: {session.reconnectAttemptCount}</span>}
+                          </div>
+                          {session.qrCode && (
+                            <p className="mt-2 break-all rounded border border-amber-400/20 bg-amber-400/10 p-2 text-amber-100">QR: {session.qrCode}</p>
+                          )}
+                          {session.lastError && <p className="mt-2 text-red-200">Son hata: {session.lastError}</p>}
+                        </div>
+                      )}
                       {line.notes && <p className="mt-3 rounded-md border border-line bg-panelSoft p-3 text-sm text-slate-400">{line.notes}</p>}
                     </article>
                   );
@@ -4544,8 +4566,16 @@ function canSendWithLineStatus(status?: string) {
 function providerLabel(provider: string) {
   const labels: Record<string, string> = {
     manual: "Manual",
+    whatsapp_baileys: "WhatsApp Baileys",
+    whatsapp_web_js: "WhatsApp Web.js",
     whatsapp_web: "WhatsApp Web",
-    cloud_api: "Cloud API"
+    whatsapp_cloud_api: "WhatsApp Cloud API",
+    cloud_api: "Cloud API",
+    telegram_bot: "Telegram Bot",
+    telegram_user: "Telegram User",
+    live_chat: "Canlı Destek",
+    email: "E-posta",
+    sms: "SMS"
   };
   return labels[provider] ?? provider;
 }
@@ -5253,6 +5283,7 @@ function scopeAppDataForUser(data: AppData, user: SessionUser): AppData {
     messages: data.messages.filter((message) => conversationIds.has(message.conversationId)),
     operators: data.operators.filter((operator) => visibleOperatorIds.has(operator.id)),
     communicationLines: data.communicationLines.filter((line) => user.role === "Takım Lideri" ? (!line.assignedOperatorId || visibleLineIds.has(line.id)) : visibleLineIds.has(line.id)),
+    communicationSessions: data.communicationSessions?.filter((session) => visibleLineIds.has(session.lineId)) ?? [],
     ttsUsageLogs: data.ttsUsageLogs.filter((log) => isVisibleOperator(log.operatorId)),
     operatorLineSessions: data.operatorLineSessions.filter((session) => visibleOperatorIds.has(session.operatorId)),
     ownershipRequests: data.ownershipRequests.filter((request) => visibleContactIds.has(request.contactId) || isVisibleOperator(request.requestedByOperatorId) || isVisibleOperator(request.currentOwnerOperatorId)),
