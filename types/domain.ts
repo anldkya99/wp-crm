@@ -112,6 +112,12 @@ export type CommunicationLine = {
   countryCode: string;
   providerType: "whatsapp_baileys" | "whatsapp_web_js" | "whatsapp_web" | "whatsapp_cloud_api" | "cloud_api" | "telegram_bot" | "telegram_user" | "live_chat" | "email" | "sms" | "manual";
   status: "active" | "passive" | "connecting" | "blocked" | "disconnected" | "qr_waiting" | "connected" | "replacement_pending" | "archived";
+  connectionStatus?: "disconnected" | "qr_pending" | "connecting" | "connected" | "error";
+  sessionPath?: string;
+  qrUpdatedAt?: string;
+  lastDisconnectedAt?: string;
+  lastError?: string;
+  isActiveOperationLine?: boolean;
   isDefault: boolean;
   lastConnectedAt?: string;
   lastMessageAt?: string;

@@ -110,6 +110,12 @@ type DbCommunicationLine = {
   countryCode: string;
   providerType: string;
   status: string;
+  connectionStatus?: string | null;
+  sessionPath?: string | null;
+  qrUpdatedAt?: Date | null;
+  lastDisconnectedAt?: Date | null;
+  lastError?: string | null;
+  isActiveOperationLine?: boolean | null;
   isDefault: boolean;
   lastConnectedAt?: Date | null;
   lastMessageAt?: Date | null;
@@ -435,6 +441,12 @@ export function serializeCommunicationLine(line: DbCommunicationLine): Communica
     countryCode: line.countryCode,
     providerType: normalizeProviderType(line.providerType),
     status: normalizeLineStatus(line.status),
+    connectionStatus: normalizeConnectionStatus(line.connectionStatus),
+    sessionPath: line.sessionPath ?? undefined,
+    qrUpdatedAt: line.qrUpdatedAt?.toISOString(),
+    lastDisconnectedAt: line.lastDisconnectedAt?.toISOString(),
+    lastError: line.lastError ?? undefined,
+    isActiveOperationLine: line.isActiveOperationLine ?? line.isDefault,
     isDefault: line.isDefault,
     lastConnectedAt: line.lastConnectedAt?.toISOString(),
     lastMessageAt: line.lastMessageAt?.toISOString(),
@@ -702,6 +714,11 @@ function normalizeProviderType(value: string): CommunicationLine["providerType"]
 function normalizeLineStatus(value: string): CommunicationLine["status"] {
   if (value === "active" || value === "passive" || value === "connecting" || value === "blocked" || value === "disconnected" || value === "qr_waiting" || value === "connected" || value === "replacement_pending" || value === "archived") return value;
   return "passive";
+}
+
+function normalizeConnectionStatus(value?: string | null): CommunicationLine["connectionStatus"] {
+  if (value === "disconnected" || value === "qr_pending" || value === "connecting" || value === "connected" || value === "error") return value;
+  return "disconnected";
 }
 
 function normalizeQuestionAnswers(value: unknown): AutomationQuestionAnswer[] {

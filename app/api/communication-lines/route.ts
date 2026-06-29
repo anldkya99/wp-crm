@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     }
 
     const line = await prisma.$transaction(async (tx) => {
-      if (isDefault) await tx.communicationLine.updateMany({ data: { isDefault: false, status: "passive" } });
+      if (isDefault) await tx.communicationLine.updateMany({ data: { isDefault: false, isActiveOperationLine: false, status: "passive" } });
       const created = await tx.communicationLine.create({
         data: {
           name,
@@ -39,7 +39,9 @@ export async function POST(request: Request) {
           countryCode,
           providerType,
           status: isDefault ? "active" : status,
+          connectionStatus: isDefault ? "connected" : statusToConnectionStatus(status),
           isDefault,
+          isActiveOperationLine: isDefault,
           notes,
           lastConnectedAt: isConnectedStatus(isDefault ? "active" : status) ? new Date() : null,
           blockedAt: status === "blocked" ? new Date() : null,
@@ -95,10 +97,10 @@ export async function PATCH(request: Request) {
       if (!current) throw new Error("Hat bulunamadı.");
 
       if (makeDefault) {
-        await tx.communicationLine.updateMany({ where: { id: { not: id } }, data: { isDefault: false, status: "passive" } });
+        await tx.communicationLine.updateMany({ where: { id: { not: id } }, data: { isDefault: false, isActiveOperationLine: false, status: "passive" } });
         const updated = await tx.communicationLine.update({
           where: { id },
-          data: { isDefault: true, status: "active", lastConnectedAt: new Date(), blockedAt: null }
+          data: { isDefault: true, isActiveOperationLine: true, status: "active", connectionStatus: current.connectionStatus === "connected" ? "connected" : statusToConnectionStatus(current.status), lastConnectedAt: new Date(), blockedAt: null }
         });
         await tx.timelineEvent.create({
           data: {
@@ -116,12 +118,14 @@ export async function PATCH(request: Request) {
       if (replaceWithLineId) {
         const replacement = await tx.communicationLine.findUnique({ where: { id: replaceWithLineId } });
         if (!replacement) throw new Error("Yeni hat bulunamadı.");
-        await tx.communicationLine.updateMany({ where: { id: { not: replaceWithLineId } }, data: { isDefault: false } });
+        await tx.communicationLine.updateMany({ where: { id: { not: replaceWithLineId } }, data: { isDefault: false, isActiveOperationLine: false } });
         const archivedOld = await tx.communicationLine.update({
           where: { id },
           data: {
             status: current.status === "blocked" ? "blocked" : "archived",
+            connectionStatus: "disconnected",
             isDefault: false,
+            isActiveOperationLine: false,
             replacedByLineId: replacement.id,
             archivedAt: new Date()
           }
@@ -130,7 +134,9 @@ export async function PATCH(request: Request) {
           where: { id: replacement.id },
           data: {
             status: "active",
+            connectionStatus: replacement.connectionStatus === "connected" ? "connected" : statusToConnectionStatus(replacement.status),
             isDefault: true,
+            isActiveOperationLine: true,
             replacementOfLineId: current.id,
             lastConnectedAt: new Date(),
             blockedAt: null
@@ -156,7 +162,9 @@ export async function PATCH(request: Request) {
         countryCode?: string;
         providerType?: string;
         status?: string;
+        connectionStatus?: string;
         isDefault?: boolean;
+        isActiveOperationLine?: boolean;
         notes?: string | null;
         lastConnectedAt?: Date | null;
         blockedAt?: Date | null;
@@ -172,9 +180,13 @@ export async function PATCH(request: Request) {
       if ("status" in body) {
         const nextStatus = normalizeStatus(body.status);
         data.status = nextStatus;
+        data.connectionStatus = statusToConnectionStatus(nextStatus);
         if (nextStatus === "blocked") data.blockedAt = new Date();
         if (isConnectedStatus(nextStatus)) data.lastConnectedAt = new Date();
-        if (nextStatus === "blocked" || nextStatus === "disconnected" || nextStatus === "passive" || nextStatus === "replacement_pending" || nextStatus === "archived") data.isDefault = false;
+        if (nextStatus === "blocked" || nextStatus === "disconnected" || nextStatus === "passive" || nextStatus === "replacement_pending" || nextStatus === "archived") {
+          data.isDefault = false;
+          data.isActiveOperationLine = false;
+        }
       }
       if ("notes" in body) data.notes = String(body.notes ?? "").trim() || null;
       if ("assignedOperatorId" in body) {
@@ -227,6 +239,14 @@ function normalizeProvider(value: unknown) {
 function normalizeStatus(value: unknown) {
   const status = String(value ?? "passive");
   return statuses.has(status) ? status : "passive";
+}
+
+function statusToConnectionStatus(status: string) {
+  if (status === "connected" || status === "active") return "connected";
+  if (status === "connecting") return "connecting";
+  if (status === "qr_waiting") return "qr_pending";
+  if (status === "blocked") return "error";
+  return "disconnected";
 }
 
 function isConnectedStatus(status: string) {

@@ -1,4 +1,6 @@
+import fs from "fs/promises";
 import path from "path";
+import { prisma } from "@/lib/prisma";
 import type { ConnectionActionResult, ConnectionLine, ConnectionProviderType, ProviderAdapter, SendMessageInput, SendMessageResult } from "@/lib/connection-engine/types";
 
 class ManualAdapter implements ProviderAdapter {
@@ -10,11 +12,11 @@ class ManualAdapter implements ProviderAdapter {
   }
 
   async start(line: ConnectionLine): Promise<ConnectionActionResult> {
-    return { lineId: line.id, providerType: "manual", status: "connected", qr: null, message: "Manual provider sistem içi gönderim için hazır." };
+    return { lineId: line.id, providerType: "manual", status: "connected", qr: null, message: "Manual provider sistem ici gonderim icin hazir." };
   }
 
   async stop(line: ConnectionLine): Promise<ConnectionActionResult> {
-    return { lineId: line.id, providerType: "manual", status: "disconnected", qr: null, message: "Manual provider session kapatıldı." };
+    return { lineId: line.id, providerType: "manual", status: "disconnected", qr: null, message: "Manual provider session kapatildi." };
   }
 
   async reconnect(line: ConnectionLine): Promise<ConnectionActionResult> {
@@ -22,7 +24,7 @@ class ManualAdapter implements ProviderAdapter {
   }
 
   async healthCheck(line: ConnectionLine): Promise<ConnectionActionResult> {
-    return { lineId: line.id, providerType: "manual", status: "connected", qr: null, message: "Manual provider sağlıklı." };
+    return { lineId: line.id, providerType: "manual", status: "connected", qr: null, message: "Manual provider saglikli." };
   }
 
   async sendMessage(input: SendMessageInput): Promise<SendMessageResult> {
@@ -43,7 +45,7 @@ class MissingAdapter implements ProviderAdapter {
   }
 
   async stop(line: ConnectionLine): Promise<ConnectionActionResult> {
-    return { lineId: line.id, providerType: this.providerType, status: "disconnected", qr: null, message: `${this.providerType} provider session kapatıldı.` };
+    return { lineId: line.id, providerType: this.providerType, status: "disconnected", qr: null, message: `${this.providerType} provider session kapatildi.` };
   }
 
   async reconnect(line: ConnectionLine): Promise<ConnectionActionResult> {
@@ -55,7 +57,7 @@ class MissingAdapter implements ProviderAdapter {
   }
 
   async sendMessage(): Promise<SendMessageResult> {
-    throw new Error(`${this.providerType} provider adapter henüz yapılandırılmadı. Fake/mock gönderim yapılmadı.`);
+    throw new Error(`${this.providerType} provider adapter henuz yapilandirilmadi. Fake/mock gonderim yapilmadi.`);
   }
 
   private unavailable(line: ConnectionLine, status: string): ConnectionActionResult {
@@ -64,7 +66,7 @@ class MissingAdapter implements ProviderAdapter {
       providerType: this.providerType,
       status,
       qr: null,
-      message: `${this.providerType} provider adapter henüz yapılandırılmadı. Fake/mock bağlantı üretilmedi.`
+      message: `${this.providerType} provider adapter henuz yapilandirilmadi. Fake/mock baglanti uretilmedi.`
     };
   }
 }
@@ -73,13 +75,14 @@ type BaileysRuntime = {
   sock: any;
   qr?: string | null;
   status: string;
+  sessionPath: string;
 };
 
 const baileysSessions = new Map<string, BaileysRuntime>();
 
 class WhatsAppBaileysAdapter implements ProviderAdapter {
   providerType: ConnectionProviderType = "whatsapp_baileys";
-  capabilities = ["send_message", "receive_message", "qr_auth", "session_restore", "reconnect", "delivery_status", "read_status"] as ProviderAdapter["capabilities"];
+  capabilities = ["qr_auth", "session_restore", "reconnect"] as ProviderAdapter["capabilities"];
 
   async requestQr(line: ConnectionLine): Promise<ConnectionActionResult> {
     return this.start(line);
@@ -89,38 +92,70 @@ class WhatsAppBaileysAdapter implements ProviderAdapter {
     const baileys = await import("@whiskeysockets/baileys");
     const makeWASocket = (baileys.default ?? (baileys as any).makeWASocket) as any;
     const useMultiFileAuthState = (baileys as any).useMultiFileAuthState;
-    const sessionPath = path.join(process.cwd(), ".connection-sessions", "whatsapp_baileys", line.id);
-    const authState = await useMultiFileAuthState(sessionPath);
+    const fetchLatestBaileysVersion = (baileys as any).fetchLatestBaileysVersion;
+    const sessionPath = whatsappSessionPath(line.id);
+    await fs.mkdir(sessionPath, { recursive: true });
 
+    const previous = baileysSessions.get(line.id);
+    if (previous) {
+      await previous.sock?.end?.().catch?.(() => undefined);
+      baileysSessions.delete(line.id);
+    }
+
+    const authState = await useMultiFileAuthState(sessionPath);
+    const version = fetchLatestBaileysVersion
+      ? await fetchLatestBaileysVersion().then((result: { version?: number[] }) => result.version).catch(() => undefined)
+      : undefined;
     const sock = makeWASocket({
       auth: authState.state,
       printQRInTerminal: false,
-      browser: ["WP CRM", "Chrome", "12"]
+      browser: ["Operation Pact", "Chrome", "1.1"],
+      version
     });
     sock.ev.on("creds.update", authState.saveCreds);
 
-    const runtime: BaileysRuntime = { sock, qr: null, status: "connecting" };
+    const runtime: BaileysRuntime = { sock, qr: null, status: "connecting", sessionPath };
     baileysSessions.set(line.id, runtime);
+    await persistBaileysState(line, "connecting", null, sessionPath, "Baileys baglantisi baslatildi.");
 
     return await new Promise<ConnectionActionResult>((resolve) => {
+      let settled = false;
+      const finish = (result: ConnectionActionResult) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeout);
+        resolve(result);
+      };
       const timeout = setTimeout(() => {
-        resolve({ lineId: line.id, providerType: this.providerType, status: runtime.qr ? "qr_generated" : "connecting", qr: runtime.qr ?? null, message: runtime.qr ? "Baileys QR üretildi." : "Baileys bağlantısı başlatıldı, QR bekleniyor." });
+        finish({
+          lineId: line.id,
+          providerType: this.providerType,
+          status: runtime.qr ? "qr_generated" : "connecting",
+          qr: runtime.qr ?? null,
+          sessionPath,
+          message: runtime.qr ? "Baileys QR uretildi." : "Baileys baglantisi baslatildi, QR bekleniyor."
+        });
       }, 5000);
 
-      sock.ev.on("connection.update", (update: any) => {
+      sock.ev.on("connection.update", async (update: any) => {
         if (update.qr) {
           runtime.qr = update.qr;
           runtime.status = "qr_generated";
-          clearTimeout(timeout);
-          resolve({ lineId: line.id, providerType: this.providerType, status: "qr_generated", qr: update.qr, message: "Baileys QR üretildi." });
+          await safePersistBaileysState(line, "qr_generated", update.qr, sessionPath, "Baileys QR uretildi.");
+          finish({ lineId: line.id, providerType: this.providerType, status: "qr_generated", qr: update.qr, sessionPath, message: "Baileys QR uretildi." });
         }
+
         if (update.connection === "open") {
           runtime.status = "connected";
-          clearTimeout(timeout);
-          resolve({ lineId: line.id, providerType: this.providerType, status: "connected", qr: null, message: "Baileys WhatsApp bağlantısı kuruldu." });
+          runtime.qr = null;
+          await safePersistBaileysState(line, "connected", null, sessionPath, "Baileys WhatsApp baglantisi kuruldu.");
+          finish({ lineId: line.id, providerType: this.providerType, status: "connected", qr: null, sessionPath, message: "Baileys WhatsApp baglantisi kuruldu." });
         }
+
         if (update.connection === "close") {
           runtime.status = "disconnected";
+          const reason = update.lastDisconnect?.error?.message ?? "Baileys baglantisi kapandi.";
+          await safePersistBaileysState(line, "disconnected", null, sessionPath, reason);
         }
       });
     });
@@ -130,7 +165,9 @@ class WhatsAppBaileysAdapter implements ProviderAdapter {
     const runtime = baileysSessions.get(line.id);
     await runtime?.sock?.logout?.().catch?.(() => undefined);
     baileysSessions.delete(line.id);
-    return { lineId: line.id, providerType: this.providerType, status: "disconnected", qr: null, message: "Baileys session kapatıldı." };
+    const sessionPath = runtime?.sessionPath ?? whatsappSessionPath(line.id);
+    await persistBaileysState(line, "disconnected", null, sessionPath, "Baileys session kapatildi.");
+    return { lineId: line.id, providerType: this.providerType, status: "disconnected", qr: null, sessionPath, message: "Baileys session kapatildi." };
   }
 
   async reconnect(line: ConnectionLine): Promise<ConnectionActionResult> {
@@ -140,16 +177,14 @@ class WhatsAppBaileysAdapter implements ProviderAdapter {
 
   async healthCheck(line: ConnectionLine): Promise<ConnectionActionResult> {
     const runtime = baileysSessions.get(line.id);
-    if (!runtime) return { lineId: line.id, providerType: this.providerType, status: "disconnected", qr: null, message: "Baileys runtime session bulunamadı." };
-    return { lineId: line.id, providerType: this.providerType, status: runtime.status, qr: runtime.qr ?? null, message: `Baileys session durumu: ${runtime.status}` };
+    if (!runtime) {
+      return { lineId: line.id, providerType: this.providerType, status: "disconnected", qr: null, sessionPath: whatsappSessionPath(line.id), message: "Baileys runtime session bulunamadi." };
+    }
+    return { lineId: line.id, providerType: this.providerType, status: runtime.status, qr: runtime.qr ?? null, sessionPath: runtime.sessionPath, message: `Baileys session durumu: ${runtime.status}` };
   }
 
-  async sendMessage(input: SendMessageInput): Promise<SendMessageResult> {
-    const runtime = baileysSessions.get(input.line.id);
-    if (!runtime || runtime.status !== "connected") throw new Error("Baileys session connected değil.");
-    const jid = normalizeWhatsAppJid(input.recipient);
-    const result = await runtime.sock.sendMessage(jid, { text: input.messageText });
-    return { providerMessageId: result?.key?.id ?? `baileys-${Date.now()}` };
+  async sendMessage(): Promise<SendMessageResult> {
+    throw new Error("Bu surumde gercek WhatsApp mesaj gonderimi kapali. Sadece QR, session ve baglanti durumu aktif.");
   }
 }
 
@@ -180,8 +215,76 @@ export function normalizeProviderType(providerType: string): ConnectionProviderT
   return "manual";
 }
 
-function normalizeWhatsAppJid(phone: string) {
-  const digits = phone.replace(/\D/g, "");
-  const normalized = digits.startsWith("90") ? digits : digits.startsWith("0") ? `9${digits}` : digits;
-  return `${normalized}@s.whatsapp.net`;
+function whatsappSessionPath(lineId: string) {
+  return path.join(process.cwd(), ".connection-sessions", "whatsapp_baileys", lineId);
+}
+
+async function persistBaileysState(line: ConnectionLine, status: string, qr: string | null, sessionPath: string, message: string) {
+  const now = new Date();
+  const sessionStatus = status === "qr_generated" ? "qr_generated" : status === "connected" ? "connected" : status === "connecting" ? "connecting" : "disconnected";
+  const lineStatus = status === "qr_generated" ? "qr_waiting" : status === "connected" ? "connected" : status === "connecting" ? "connecting" : "disconnected";
+  const connectionStatus = status === "qr_generated" ? "qr_pending" : status === "connected" ? "connected" : status === "connecting" ? "connecting" : "disconnected";
+
+  await prisma.communicationSession.upsert({
+    where: { lineId: line.id },
+    create: {
+      lineId: line.id,
+      providerType: "whatsapp_baileys",
+      sessionStatus,
+      qrCode: qr,
+      lastQrAt: qr ? now : null,
+      connectedAt: status === "connected" ? now : null,
+      disconnectedAt: status === "disconnected" ? now : null,
+      lastError: status === "disconnected" ? message : null,
+      sessionStoragePath: sessionPath,
+      sessionKey: `whatsapp_baileys:${line.id}`
+    },
+    update: {
+      providerType: "whatsapp_baileys",
+      sessionStatus,
+      qrCode: qr,
+      lastQrAt: qr ? now : undefined,
+      connectedAt: status === "connected" ? now : undefined,
+      disconnectedAt: status === "disconnected" ? now : undefined,
+      lastError: status === "connected" || status === "qr_generated" || status === "connecting" ? null : message,
+      sessionStoragePath: sessionPath
+    }
+  });
+
+  await prisma.communicationLine.update({
+    where: { id: line.id },
+    data: {
+      status: lineStatus,
+      connectionStatus,
+      sessionPath,
+      qrUpdatedAt: qr ? now : undefined,
+      lastConnectedAt: status === "connected" ? now : undefined,
+      lastDisconnectedAt: status === "disconnected" ? now : undefined,
+      lastError: status === "connected" || status === "qr_generated" || status === "connecting" ? null : message,
+      isDefault: status === "disconnected" ? false : line.isDefault,
+      isActiveOperationLine: status === "connected" && line.isDefault
+    }
+  });
+
+  await prisma.connectionActivityLog.create({
+    data: {
+      lineId: line.id,
+      providerType: "whatsapp_baileys",
+      eventType: status === "qr_generated" ? "QR_GENERATED" : status === "connected" ? "SESSION_CONNECTED" : status === "connecting" ? "SESSION_STARTED" : "SESSION_DISCONNECTED",
+      status: connectionStatus,
+      details: message
+    }
+  });
+}
+
+async function safePersistBaileysState(line: ConnectionLine, status: string, qr: string | null, sessionPath: string, message: string) {
+  try {
+    await persistBaileysState(line, status, qr, sessionPath, message);
+  } catch (error) {
+    console.error("[baileys] state persist failed", {
+      lineId: line.id,
+      status,
+      message: error instanceof Error ? error.message : String(error)
+    });
+  }
 }

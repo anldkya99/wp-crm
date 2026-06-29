@@ -29,6 +29,7 @@ export type ConnectionLine = {
   phoneNumber: string;
   providerType: string;
   status: string;
+  isDefault?: boolean;
 };
 
 export type ConnectionActionResult = {
@@ -36,6 +37,7 @@ export type ConnectionActionResult = {
   providerType: string;
   status: ConnectionSessionStatus | string;
   qr?: string | null;
+  sessionPath?: string | null;
   message: string;
 };
 

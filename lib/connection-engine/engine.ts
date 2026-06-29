@@ -53,7 +53,7 @@ export const connectionEngine = {
       qrCode: null
     });
     const nextLineStatus = line.status === "blocked" || line.status === "archived" ? line.status : "disconnected";
-    await updateLine(lineId, { status: nextLineStatus, isDefault: false });
+    await updateLine(lineId, { status: nextLineStatus, connectionStatus: "disconnected", lastDisconnectedAt: new Date(), isDefault: false, isActiveOperationLine: false });
     await log(line, "SESSION_DISCONNECTED", nextLineStatus, result.message);
     await logTimeline(lineId, operatorId, "LINE_DISCONNECTED", "Hat bağlantısı koptu", `${line.name} oturumu kapatıldı.`);
     return { ...result, status: nextLineStatus };
@@ -119,7 +119,8 @@ async function applyResult(line: ConnectionLine, result: ConnectionActionResult,
     lastQrAt: result.qr ? now : undefined,
     connectedAt: status === "connected" ? now : undefined,
     disconnectedAt: status === "disconnected" || status === "failed" ? now : undefined,
-    lastError: status === "connected" ? null : result.message
+    lastError: status === "connected" || status === "qr_generated" || status === "connecting" ? null : result.message,
+    sessionStoragePath: result.sessionPath ?? undefined
   });
   await applyLineHealth(line, result);
   await log(line, status === "connected" ? "SESSION_CONNECTED" : status === "qr_generated" ? "QR_GENERATED" : "PROVIDER_STATUS", status, result.message);
@@ -131,19 +132,19 @@ async function applyResult(line: ConnectionLine, result: ConnectionActionResult,
 async function applyLineHealth(line: ConnectionLine, result: ConnectionActionResult) {
   const status = normalizeSessionStatus(result.status);
   if (status === "connected") {
-    await updateLine(line.id, { status: "connected", lastConnectedAt: new Date(), blockedAt: null });
+    await updateLine(line.id, { status: "connected", connectionStatus: "connected", sessionPath: result.sessionPath ?? undefined, lastConnectedAt: new Date(), lastError: null, blockedAt: null });
     return;
   }
   if (status === "qr_requested" || status === "qr_generated") {
-    await updateLine(line.id, { status: "qr_waiting", isDefault: false });
+    await updateLine(line.id, { status: "qr_waiting", connectionStatus: "qr_pending", sessionPath: result.sessionPath ?? undefined, qrUpdatedAt: result.qr ? new Date() : undefined, lastError: null, isDefault: false, isActiveOperationLine: false });
     return;
   }
   if (status === "connecting" || status === "reconnecting") {
-    await updateLine(line.id, { status: "connecting" });
+    await updateLine(line.id, { status: "connecting", connectionStatus: "connecting", sessionPath: result.sessionPath ?? undefined, lastError: null });
     return;
   }
   if (line.status !== "blocked" && line.status !== "archived" && line.status !== "replacement_pending") {
-    await updateLine(line.id, { status: "disconnected", isDefault: false });
+    await updateLine(line.id, { status: "disconnected", connectionStatus: "error", sessionPath: result.sessionPath ?? undefined, lastDisconnectedAt: new Date(), lastError: result.message, isDefault: false, isActiveOperationLine: false });
   }
 }
 
@@ -196,7 +197,7 @@ async function log(line: ConnectionLine, eventType: string, status: string, deta
       details
     }
   });
-  if (line.providerType === "manual" || line.providerType === "whatsapp_web" || line.providerType === "cloud_api" || line.providerType === "whatsapp_cloud_api") {
+  if (line.providerType === "manual" || line.providerType === "whatsapp_baileys" || line.providerType === "whatsapp_web" || line.providerType === "cloud_api" || line.providerType === "whatsapp_cloud_api") {
     await prisma.whatsAppSessionLog.create({
       data: { lineId: line.id, eventType, status, details }
     });

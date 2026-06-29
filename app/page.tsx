@@ -29,6 +29,7 @@ import {
   UsersRound
 } from "lucide-react";
 import clsx from "clsx";
+import QRCode from "qrcode";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { systemGuideLastUpdate, systemGuideSections, systemPrinciples } from "@/lib/system-guide";
 import type { AppData, Contact, MessageTemplate, RequestItem, RequestStatus, RequestType, SessionUser } from "@/types/domain";
@@ -101,6 +102,13 @@ const lineStatusLabels: Record<string, string> = {
   connected: "Bağlı",
   replacement_pending: "Değişim bekliyor",
   archived: "Arşiv"
+};
+const lineConnectionStatusLabels: Record<string, string> = {
+  disconnected: "Bağlı değil",
+  qr_pending: "QR bekliyor",
+  connecting: "Bağlanıyor",
+  connected: "Bağlı",
+  error: "Hata"
 };
 
 type ActiveMenu = (typeof menu)[number]["key"];
@@ -224,6 +232,8 @@ export default function Home() {
   const [operatorForm, setOperatorForm] = useState({ name: "", email: "", password: "", role: "Operatör", status: "Aktif", teamLeadId: "" });
   const [editingLineId, setEditingLineId] = useState("");
   const [lineForm, setLineForm] = useState({ name: "", phoneNumber: "", countryCode: "+90", providerType: "manual", status: "passive", isDefault: false, assignedOperatorId: "", assignmentNote: "", notes: "" });
+  const [whatsAppQrModal, setWhatsAppQrModal] = useState<{ lineId: string; qr?: string; message?: string } | null>(null);
+  const [whatsAppQrImage, setWhatsAppQrImage] = useState("");
   const [query, setQuery] = useState("");
   const [guideQuery, setGuideQuery] = useState("");
   const [settingsSubTab, setSettingsSubTab] = useState<SettingsSubTab>("Genel");
@@ -520,6 +530,47 @@ export default function Home() {
   useEffect(() => {
     if (selectedContact?.id) activeContactIdRef.current = selectedContact.id;
   }, [selectedContact?.id]);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!whatsAppQrModal?.qr) {
+      setWhatsAppQrImage("");
+      return;
+    }
+    QRCode.toDataURL(whatsAppQrModal.qr, {
+      errorCorrectionLevel: "M",
+      margin: 2,
+      scale: 8,
+      color: { dark: "#061111", light: "#ffffff" }
+    }).then((url) => {
+      if (!cancelled) setWhatsAppQrImage(url);
+    }).catch(() => {
+      if (!cancelled) setWhatsAppQrImage("");
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [whatsAppQrModal?.qr]);
+
+  useEffect(() => {
+    if (!whatsAppQrModal?.lineId) return;
+    const pollQr = async () => {
+      const response = await fetch(`/api/lines/${whatsAppQrModal.lineId}/qr`, { cache: "no-store" });
+      if (!response.ok) return;
+      const payload = await response.json();
+      const sessionQr = (payload.qr ?? payload.session?.qrCode) as string | undefined;
+      setWhatsAppQrModal((current) => current?.lineId === whatsAppQrModal.lineId
+        ? { lineId: current.lineId, qr: sessionQr ?? current.qr, message: payload.hasQr ? "QR okutulmayı bekliyor." : current.message }
+        : current);
+      if (payload.status === "connected" || payload.line?.connectionStatus === "connected" || payload.session?.sessionStatus === "connected") {
+        await loadData();
+      }
+    };
+    void pollQr();
+    const timer = window.setInterval(() => void pollQr(), 2500);
+    return () => window.clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [whatsAppQrModal?.lineId]);
 
   const metrics = useMemo(() => {
     const since = Date.now() - 24 * 60 * 60 * 1000;
@@ -1308,10 +1359,31 @@ export default function Home() {
     await loadData();
   }
 
-  async function runLineSessionAction(line: AppData["communicationLines"][number], action: "qr" | "start" | "stop" | "reconnect" | "health" | "worker") {
+  async function connectWhatsAppLine(line: AppData["communicationLines"][number]) {
     if (!canManageOwnership) return;
-    const payload = await postJson("/api/whatsapp-sessions", { lineId: line.id, action, operatorId: user?.id });
+    setWhatsAppQrModal({ lineId: line.id, qr: undefined, message: "Baileys bağlantısı başlatıldı, QR bekleniyor." });
+    const payload = await postJson(`/api/lines/${line.id}/qr`, { operatorId: user?.id });
     if (!payload) return;
+    const qr = payload.qr ?? payload.session?.qrCode ?? payload.result?.qr;
+    setWhatsAppQrModal({ lineId: line.id, qr, message: payload.result?.message ?? "WhatsApp bağlantısı başlatıldı." });
+    await loadData();
+  }
+
+  async function refreshWhatsAppQr(line: AppData["communicationLines"][number]) {
+    if (!canManageOwnership) return;
+    setWhatsAppQrModal({ lineId: line.id, qr: whatsAppQrModal?.lineId === line.id ? whatsAppQrModal.qr : undefined, message: "QR yenileniyor..." });
+    const payload = await postJson(`/api/lines/${line.id}/qr`, { operatorId: user?.id });
+    if (!payload) return;
+    const qr = payload.qr ?? payload.session?.qrCode ?? payload.result?.qr;
+    setWhatsAppQrModal({ lineId: line.id, qr, message: payload.result?.message ?? "QR yenilendi." });
+    await loadData();
+  }
+
+  async function disconnectWhatsAppLine(line: AppData["communicationLines"][number]) {
+    if (!canManageOwnership) return;
+    const payload = await postJson(`/api/lines/${line.id}/disconnect`, { operatorId: user?.id });
+    if (!payload) return;
+    if (whatsAppQrModal?.lineId === line.id) setWhatsAppQrModal(null);
     await loadData();
   }
 
@@ -1453,10 +1525,13 @@ export default function Home() {
   return (
     <main className="flex min-h-screen bg-ink text-slate-100">
       <aside className="relative hidden h-screen w-72 shrink-0 flex-col border-r border-line bg-panel p-4 lg:flex">
-        <div className="mb-8 rounded-md border border-line bg-panelSoft p-4">
-          <p className="text-xs uppercase tracking-wide text-slate-400">Tek WhatsApp Numarası</p>
-          <p className="mt-1 text-lg font-bold text-white">Operasyon Paneli</p>
-          <p className="mt-2 text-sm text-mint">PostgreSQL bağlantısı aktif</p>
+        <div className="mb-8 flex min-h-[108px] flex-col items-center justify-center rounded-md border border-line bg-panelSoft p-4 text-center">
+          <p className="text-sm font-medium leading-none text-slate-400">Operation</p>
+          <p className="mt-1 text-3xl font-bold leading-none tracking-wide text-white">Pact</p>
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-mint/25 bg-mint/10 px-3 py-1 text-[11px] font-medium text-mint">
+            <span className="h-1.5 w-1.5 rounded-full bg-mint shadow-[0_0_10px_rgba(51,214,159,0.75)]" />
+            <span>WhatsApp Engine v1.1</span>
+          </div>
         </div>
         <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pb-16">
           {visibleMenu.map((item) => {
@@ -1597,8 +1672,9 @@ export default function Home() {
             </div>
           )}
           <div className="flex items-center gap-2">
-            <span className={clsx("rounded-full border px-3 py-1.5 text-xs font-semibold", activeLine && canSendWithLineStatus(activeLine.status) ? "border-mint/30 bg-mint/10 text-mint" : "border-coral/30 bg-coral/10 text-red-200")}>
-              {activeLine ? lineShortName(activeLine) : "Hat yok"}
+            <span className={clsx("inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold", activeLine && (activeLine.connectionStatus === "connected" || canSendWithLineStatus(activeLine.status)) ? "border-mint/30 bg-mint/10 text-mint" : "border-coral/30 bg-coral/10 text-red-200")}>
+              {activeLine && <span className={clsx("h-2 w-2 rounded-full", activeLine.connectionStatus === "connected" ? "bg-mint" : "bg-coral")} />}
+              {activeLine ? `${lineShortName(activeLine)} · ${lineConnectionStatusLabel(activeLine.connectionStatus)}` : "Hat yok"}
             </span>
             <button className="btn btn-secondary" onClick={() => void loadData()} disabled={loading}>
               <RefreshCw size={17} /> Yenile
@@ -2271,7 +2347,7 @@ export default function Home() {
                     label="Provider"
                     value={lineForm.providerType}
                     options={["manual", "whatsapp_baileys", "whatsapp_web_js", "whatsapp_cloud_api", "telegram_bot", "telegram_user", "live_chat", "email", "sms"]}
-                    optionLabels={{ manual: "Manual", whatsapp_baileys: "WhatsApp Baileys", whatsapp_web_js: "WhatsApp Web.js", whatsapp_cloud_api: "WhatsApp Cloud API", telegram_bot: "Telegram Bot", telegram_user: "Telegram User", live_chat: "Canlı Destek", email: "E-posta", sms: "SMS" }}
+                    optionLabels={{ manual: "Manual", whatsapp_baileys: "WhatsApp Web / Baileys", whatsapp_web_js: "WhatsApp Web.js", whatsapp_cloud_api: "WhatsApp Cloud API", telegram_bot: "Telegram Bot", telegram_user: "Telegram User", live_chat: "Canlı Destek", email: "E-posta", sms: "SMS" }}
                     onChange={(value) => setLineForm({ ...lineForm, providerType: value })}
                   />
                   <Select label="Durum" value={lineForm.status} options={["active", "passive", "connecting", "blocked", "disconnected", "qr_waiting", "connected", "replacement_pending", "archived"]} optionLabels={lineStatusLabels} onChange={(value) => setLineForm({ ...lineForm, status: value })} />
@@ -2321,7 +2397,7 @@ export default function Home() {
                           <p className="mt-1 text-sm text-slate-400">{line.countryCode} {line.phoneNumber}</p>
                         </div>
                         <span className="text-sm text-slate-300">{providerLabel(line.providerType)}</span>
-                        <span className={clsx("status-pill w-fit", lineStatusTone(line.status))}>{lineStatusLabel(line.status)}</span>
+                        <span className={clsx("status-pill w-fit", lineConnectionStatusTone(line.connectionStatus ?? line.status))}>{lineConnectionStatusLabel(line.connectionStatus)}</span>
                         <span className={clsx("status-pill w-fit", line.isDefault ? statusTone.Aktif : statusTone.Pasif)}>{line.isDefault ? "Aktif hat" : "Pasif"}</span>
                         <span className={clsx("status-pill w-fit", lineHealthTone(lineHealth(line)))}>{lineHealth(line)}</span>
                         <div className="text-xs text-slate-400">
@@ -2335,11 +2411,10 @@ export default function Home() {
                         </div>
                         <div className="flex flex-wrap justify-end gap-2">
                           <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => editCommunicationLine(line)} disabled={!canManageOwnership}>Düzenle</button>
-                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void runLineSessionAction(line, "qr")} disabled={!canManageOwnership || line.status === "blocked" || line.status === "archived"}>QR Oluştur</button>
-                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void runLineSessionAction(line, "start")} disabled={!canManageOwnership || line.status === "blocked" || line.status === "archived"}>Bağlan</button>
-                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void runLineSessionAction(line, "reconnect")} disabled={!canManageOwnership || line.status === "blocked" || line.status === "archived"}>Yeniden Bağlan</button>
-                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void runLineSessionAction(line, "health")} disabled={!canManageOwnership}>Sağlık</button>
-                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void runLineSessionAction(line, "stop")} disabled={!canManageOwnership || line.status === "blocked" || line.status === "archived"}>Kapat</button>
+                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => { console.log("QR_V2_CLICKED_LINE_ID:", line.id); void refreshWhatsAppQr(line); }} disabled={!canManageOwnership || line.providerType !== "whatsapp_baileys" || line.status === "blocked" || line.status === "archived"}>QR Oluştur v2 TEST</button>
+                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void connectWhatsAppLine(line)} disabled={!canManageOwnership || line.providerType !== "whatsapp_baileys" || line.status === "blocked" || line.status === "archived"}>WhatsApp Bağla</button>
+                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void refreshWhatsAppQr(line)} disabled={!canManageOwnership || line.providerType !== "whatsapp_baileys" || line.status === "blocked" || line.status === "archived"}>QR Yenile</button>
+                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void disconnectWhatsAppLine(line)} disabled={!canManageOwnership || line.providerType !== "whatsapp_baileys" || line.status === "blocked" || line.status === "archived"}>Bağlantıyı Kes</button>
                           <button className="btn btn-primary h-8 px-2 text-xs" onClick={() => void makeLineDefault(line)} disabled={!canManageOwnership || line.isDefault || !canSendWithLineStatus(line.status)}>Aktif Hat Yap</button>
                           <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void replaceCommunicationLine(line)} disabled={!canManageOwnership}>Hattı Değiştir</button>
                           <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void updateLineStatus(line, "blocked")} disabled={!canManageOwnership}>Bloke</button>
@@ -2352,11 +2427,17 @@ export default function Home() {
                             <span className="font-semibold text-slate-200">Session: {session.sessionStatus}</span>
                             {session.lastHealthCheckAt && <span>Heartbeat: {formatDate(session.lastHealthCheckAt)}</span>}
                             {session.reconnectAttemptCount > 0 && <span>Reconnect: {session.reconnectAttemptCount}</span>}
+                            {line.sessionPath && <span>Path: {line.sessionPath}</span>}
                           </div>
                           {session.qrCode && (
-                            <p className="mt-2 break-all rounded border border-amber-400/20 bg-amber-400/10 p-2 text-amber-100">QR: {session.qrCode}</p>
+                            <button
+                              className="mt-2 rounded-md border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-xs font-semibold text-amber-100 hover:border-amber-300"
+                              onClick={() => setWhatsAppQrModal({ lineId: line.id, qr: session.qrCode, message: "QR okutulmayı bekliyor." })}
+                            >
+                              QR Modalı Aç
+                            </button>
                           )}
-                          {session.lastError && <p className="mt-2 text-red-200">Son hata: {session.lastError}</p>}
+                          {(session.lastError || line.lastError) && <p className="mt-2 text-red-200">Son hata: {session.lastError ?? line.lastError}</p>}
                         </div>
                       )}
                       {line.notes && <p className="mt-3 rounded-md border border-line bg-panelSoft p-3 text-sm text-slate-400">{line.notes}</p>}
@@ -3371,6 +3452,60 @@ export default function Home() {
           </section>
         </div>
       )}
+      {whatsAppQrModal && (() => {
+        const modalLine = scopedData.communicationLines.find((line) => line.id === whatsAppQrModal.lineId);
+        const modalSession = scopedData.communicationSessions?.find((session) => session.lineId === whatsAppQrModal.lineId);
+        const status = modalLine?.connectionStatus ?? (modalSession?.sessionStatus === "qr_generated" ? "qr_pending" : modalSession?.sessionStatus) ?? "connecting";
+        const secondsLeft = modalLine?.qrUpdatedAt ? Math.max(0, 60 - Math.floor((Date.now() - new Date(modalLine.qrUpdatedAt).getTime()) / 1000)) : 60;
+        return (
+          <div className="fixed inset-0 z-[75] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+            <section className="w-full max-w-md overflow-hidden rounded-xl border border-mint/25 bg-[#071313] shadow-[0_0_40px_rgba(51,214,159,0.12)]">
+              <div className="border-b border-line bg-panel/80 p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-mint">Operation Pact</p>
+                    <h2 className="mt-1 text-xl font-bold text-white">WhatsApp Connection</h2>
+                  </div>
+                  <button className="btn btn-secondary h-9 px-3 text-xs" onClick={() => setWhatsAppQrModal(null)}>Kapat</button>
+                </div>
+              </div>
+              <div className="p-6">
+                <div className="relative mx-auto flex aspect-square max-w-[320px] items-center justify-center rounded-xl border border-line bg-white p-4">
+                  <span className="absolute left-3 top-3 rounded-full border border-mint/40 bg-ink px-2 py-1 text-[10px] font-bold text-mint">OP</span>
+                  {whatsAppQrImage ? (
+                    <img src={whatsAppQrImage} alt="WhatsApp bağlantı QR kodu" className="h-full w-full object-contain" />
+                  ) : (
+                    <div className="px-6 text-center text-sm font-semibold text-slate-700">QR hazırlanıyor...</div>
+                  )}
+                </div>
+                <div className="mt-5 grid gap-2 rounded-lg border border-line bg-panelSoft p-4 text-sm">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-slate-400">Durum</span>
+                    <span className={clsx("status-pill", lineConnectionStatusTone(status))}>{lineConnectionStatusLabel(status)}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-slate-400">Hat</span>
+                    <span className="font-semibold text-white">{modalLine?.name ?? "-"}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-slate-400">Session</span>
+                    <span className="font-semibold text-slate-200">{modalSession?.connectedAt ? "Kayıtlı" : "Yeni"}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-slate-400">Süre</span>
+                    <span className="font-semibold text-slate-200">{secondsLeft} sn</span>
+                  </div>
+                </div>
+                {whatsAppQrModal.message && <p className="mt-3 rounded-md border border-line bg-ink/50 p-3 text-sm text-slate-300">{whatsAppQrModal.message}</p>}
+                <div className="mt-5 flex flex-wrap justify-end gap-2">
+                  {modalLine && <button className="btn btn-secondary" onClick={() => void refreshWhatsAppQr(modalLine)}>QR Yenile</button>}
+                  {modalLine && <button className="btn btn-secondary" onClick={() => void disconnectWhatsAppLine(modalLine)}>Bağlantıyı Kes</button>}
+                </div>
+              </div>
+            </section>
+          </div>
+        );
+      })()}
       {sessionSlotModal && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/75 p-4">
           <section className="w-full max-w-md rounded-lg border border-line bg-panel p-5 shadow-glow">
@@ -4531,6 +4666,18 @@ function lineStatusLabel(status?: string) {
   return status ? lineStatusLabels[status] ?? status : "Hat yok";
 }
 
+function lineConnectionStatusLabel(status?: string) {
+  return status ? lineConnectionStatusLabels[status] ?? lineStatusLabel(status) : "Bağlı değil";
+}
+
+function lineConnectionStatusTone(status?: string) {
+  if (status === "connected" || status === "active") return "border-mint/30 bg-mint/10 text-emerald-200";
+  if (status === "qr_pending" || status === "qr_waiting") return "border-amber-400/30 bg-amber-400/10 text-amber-200";
+  if (status === "connecting") return "border-cyan-400/30 bg-cyan-400/10 text-cyan-200";
+  if (status === "error" || status === "blocked") return "border-coral/30 bg-coral/10 text-red-200";
+  return "border-slate-500/40 bg-slate-500/10 text-slate-300";
+}
+
 function lineStatusTone(status?: string) {
   if (status === "active" || status === "connected") return "border-mint/30 bg-mint/10 text-emerald-200";
   if (status === "qr_waiting") return "border-amber-400/30 bg-amber-400/10 text-amber-200";
@@ -4566,7 +4713,7 @@ function canSendWithLineStatus(status?: string) {
 function providerLabel(provider: string) {
   const labels: Record<string, string> = {
     manual: "Manual",
-    whatsapp_baileys: "WhatsApp Baileys",
+    whatsapp_baileys: "WhatsApp Web / Baileys",
     whatsapp_web_js: "WhatsApp Web.js",
     whatsapp_web: "WhatsApp Web",
     whatsapp_cloud_api: "WhatsApp Cloud API",
