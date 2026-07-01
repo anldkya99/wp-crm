@@ -25,6 +25,8 @@ export async function POST(request: Request) {
     const operatorId = String(body.operatorId ?? "") || null;
     const assignedOperatorId = String(body.assignedOperatorId ?? "") || null;
     const assignmentNote = String(body.assignmentNote ?? "").trim() || null;
+    const timelineOperatorId = await resolveUserId(operatorId);
+    const validAssignedOperatorId = await resolveUserId(assignedOperatorId);
 
     if (!name || !phoneNumber) {
       return NextResponse.json({ error: "Hat adı ve telefon zorunlu." }, { status: 400 });
@@ -45,15 +47,15 @@ export async function POST(request: Request) {
           notes,
           lastConnectedAt: isConnectedStatus(isDefault ? "active" : status) ? new Date() : null,
           blockedAt: status === "blocked" ? new Date() : null,
-          assignedOperatorId,
-          assignedAt: assignedOperatorId ? new Date() : null,
-          assignedByAdminId: assignedOperatorId ? operatorId : null,
+          assignedOperatorId: validAssignedOperatorId,
+          assignedAt: validAssignedOperatorId ? new Date() : null,
+          assignedByAdminId: validAssignedOperatorId ? timelineOperatorId : null,
           assignmentNote
         }
       });
       await tx.timelineEvent.create({
         data: {
-          operatorId,
+          operatorId: timelineOperatorId,
           eventType: "LINE_CREATED",
           eventTitle: "Yeni iletişim hattı eklendi",
           eventDescription: `${created.name} - ${created.phoneNumber}`,
@@ -64,7 +66,7 @@ export async function POST(request: Request) {
       if (isDefault) {
         await tx.timelineEvent.create({
           data: {
-            operatorId,
+            operatorId: timelineOperatorId,
             eventType: "LINE_ACTIVE_CHANGED",
             eventTitle: "Aktif operasyon hattı değiştirildi",
             eventDescription: `${created.name} aktif hat yapıldı.`,
@@ -87,8 +89,11 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     const id = String(body.id ?? "");
     const operatorId = String(body.operatorId ?? "") || null;
+    const timelineOperatorId = await resolveUserId(operatorId);
     const makeDefault = Boolean(body.makeDefault);
     const replaceWithLineId = String(body.replaceWithLineId ?? "");
+    const requestedAssignedOperatorId = "assignedOperatorId" in body ? String(body.assignedOperatorId ?? "") || null : undefined;
+    const validAssignedOperatorId = requestedAssignedOperatorId === undefined ? undefined : await resolveUserId(requestedAssignedOperatorId);
 
     if (!id) return NextResponse.json({ error: "Hat ID zorunlu." }, { status: 400 });
 
@@ -104,7 +109,7 @@ export async function PATCH(request: Request) {
         });
         await tx.timelineEvent.create({
           data: {
-            operatorId,
+            operatorId: timelineOperatorId,
             eventType: "LINE_ACTIVE_CHANGED",
             eventTitle: "Aktif operasyon hattı değiştirildi",
             eventDescription: `${updated.name} aktif hat yapıldı.`,
@@ -145,7 +150,7 @@ export async function PATCH(request: Request) {
         await tx.conversation.updateMany({ where: { lineId: current.id }, data: { lineId: replacement.id } });
         await tx.timelineEvent.create({
           data: {
-            operatorId,
+            operatorId: timelineOperatorId,
             eventType: "LINE_REPLACED",
             eventTitle: "Hat değiştirildi",
             eventDescription: `${archivedOld.name} hattı ${updatedReplacement.name} hattı ile değiştirildi. Yeni gönderimler ${updatedReplacement.name} üzerinden yapılacak.`,
@@ -190,10 +195,9 @@ export async function PATCH(request: Request) {
       }
       if ("notes" in body) data.notes = String(body.notes ?? "").trim() || null;
       if ("assignedOperatorId" in body) {
-        const nextOperatorId = String(body.assignedOperatorId ?? "") || null;
-        data.assignedOperatorId = nextOperatorId;
-        data.assignedAt = nextOperatorId ? new Date() : null;
-        data.assignedByAdminId = nextOperatorId ? operatorId : null;
+        data.assignedOperatorId = validAssignedOperatorId ?? null;
+        data.assignedAt = validAssignedOperatorId ? new Date() : null;
+        data.assignedByAdminId = validAssignedOperatorId ? timelineOperatorId : null;
       }
       if ("assignmentNote" in body) data.assignmentNote = String(body.assignmentNote ?? "").trim() || null;
 
@@ -201,7 +205,7 @@ export async function PATCH(request: Request) {
       if ("assignedOperatorId" in body) {
         await tx.timelineEvent.create({
           data: {
-            operatorId,
+            operatorId: timelineOperatorId,
             eventType: "LINE_ASSIGNED",
             eventTitle: "Hat operatöre atandı",
             eventDescription: updated.assignedOperatorId ? `${updated.name} hattı operatöre atandı.` : `${updated.name} hattının operatör ataması kaldırıldı.`,
@@ -213,7 +217,7 @@ export async function PATCH(request: Request) {
       if (data.status) {
         await tx.timelineEvent.create({
           data: {
-            operatorId,
+            operatorId: timelineOperatorId,
             eventType: data.status === "blocked" ? "LINE_BLOCKED" : data.status === "disconnected" ? "LINE_DISCONNECTED" : isConnectedStatus(data.status) ? "LINE_CONNECTED" : "LINE_UPDATED",
             eventTitle: data.status === "blocked" ? "Hat kapandı / bloke oldu" : data.status === "disconnected" ? "Hat bağlantısı koptu" : isConnectedStatus(data.status) ? "Hat tekrar bağlandı" : "Hat güncellendi",
             eventDescription: `${updated.name} durumu: ${updated.status}`,
@@ -239,6 +243,12 @@ function normalizeProvider(value: unknown) {
 function normalizeStatus(value: unknown) {
   const status = String(value ?? "passive");
   return statuses.has(status) ? status : "passive";
+}
+
+async function resolveUserId(userId?: string | null) {
+  if (!userId) return null;
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true } });
+  return user?.id ?? null;
 }
 
 function statusToConnectionStatus(status: string) {
