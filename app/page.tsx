@@ -2389,6 +2389,10 @@ export default function Home() {
                     const replacementOf = line.replacementOfLineId ? data.communicationLines.find((item) => item.id === line.replacementOfLineId) : undefined;
                     const replacedBy = line.replacedByLineId ? data.communicationLines.find((item) => item.id === line.replacedByLineId) : undefined;
                     const session = scopedData.communicationSessions?.find((item) => item.lineId === line.id);
+                    const canRequestQr = canRequestWhatsAppQr(line);
+                    const canRefreshQr = canRefreshWhatsAppQr(line);
+                    const canDisconnectQr = canDisconnectWhatsApp(line);
+                    const canConnectQr = canConnectWhatsApp(line);
                     return (
                     <article key={line.id} className="rounded-md border border-line bg-ink/35 p-4">
                       <div className="grid gap-3 xl:grid-cols-[1.1fr_120px_120px_120px_130px_160px_150px_auto] xl:items-center">
@@ -2411,10 +2415,10 @@ export default function Home() {
                         </div>
                         <div className="flex flex-wrap justify-end gap-2">
                           <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => editCommunicationLine(line)} disabled={!canManageOwnership}>Düzenle</button>
-                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => { console.log("QR_V2_CLICKED_LINE_ID:", line.id); void refreshWhatsAppQr(line); }} disabled={!canManageOwnership || line.providerType !== "whatsapp_baileys" || line.status === "blocked" || line.status === "archived"}>QR Oluştur v2 TEST</button>
-                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void connectWhatsAppLine(line)} disabled={!canManageOwnership || line.providerType !== "whatsapp_baileys" || line.status === "blocked" || line.status === "archived"}>WhatsApp Bağla</button>
-                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void refreshWhatsAppQr(line)} disabled={!canManageOwnership || line.providerType !== "whatsapp_baileys" || line.status === "blocked" || line.status === "archived"}>QR Yenile</button>
-                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void disconnectWhatsAppLine(line)} disabled={!canManageOwnership || line.providerType !== "whatsapp_baileys" || line.status === "blocked" || line.status === "archived"}>Bağlantıyı Kes</button>
+                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => { console.log("QR_V2_CLICKED_LINE_ID:", line.id); void refreshWhatsAppQr(line); }} disabled={!canRequestQr}>QR Oluştur v2 TEST</button>
+                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void connectWhatsAppLine(line)} disabled={!canConnectQr}>WhatsApp Bağla</button>
+                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void refreshWhatsAppQr(line)} disabled={!canRefreshQr}>QR Yenile</button>
+                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void disconnectWhatsAppLine(line)} disabled={!canDisconnectQr}>Bağlantıyı Kes</button>
                           <button className="btn btn-primary h-8 px-2 text-xs" onClick={() => void makeLineDefault(line)} disabled={!canManageOwnership || line.isDefault || !canSendWithLineStatus(line.status)}>Aktif Hat Yap</button>
                           <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void replaceCommunicationLine(line)} disabled={!canManageOwnership}>Hattı Değiştir</button>
                           <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void updateLineStatus(line, "blocked")} disabled={!canManageOwnership}>Bloke</button>
@@ -4708,6 +4712,34 @@ function lineHealthTone(health: string) {
 
 function canSendWithLineStatus(status?: string) {
   return status === "active" || status === "connected";
+}
+
+function isWhatsAppBaileysLine(line: AppData["communicationLines"][number]) {
+  return line.providerType === "whatsapp_baileys";
+}
+
+function isConnectionLockedLine(line: AppData["communicationLines"][number]) {
+  return line.status === "blocked" || line.status === "archived" || line.status === "replacement_pending";
+}
+
+function canRequestWhatsAppQr(line: AppData["communicationLines"][number]) {
+  if (!isWhatsAppBaileysLine(line) || isConnectionLockedLine(line)) return false;
+  return line.connectionStatus !== "connected";
+}
+
+function canConnectWhatsApp(line: AppData["communicationLines"][number]) {
+  if (!isWhatsAppBaileysLine(line) || isConnectionLockedLine(line)) return false;
+  return line.connectionStatus !== "connected";
+}
+
+function canRefreshWhatsAppQr(line: AppData["communicationLines"][number]) {
+  if (!isWhatsAppBaileysLine(line) || isConnectionLockedLine(line)) return false;
+  return line.connectionStatus === "qr_pending" || line.connectionStatus === "connecting" || line.connectionStatus === "error" || line.connectionStatus === "disconnected" || !line.connectionStatus;
+}
+
+function canDisconnectWhatsApp(line: AppData["communicationLines"][number]) {
+  if (!isWhatsAppBaileysLine(line) || line.status === "archived") return false;
+  return line.connectionStatus === "connected" || line.connectionStatus === "connecting" || line.connectionStatus === "qr_pending" || line.connectionStatus === "error";
 }
 
 function providerLabel(provider: string) {
