@@ -2425,6 +2425,23 @@ export default function Home() {
                           <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void updateLineStatus(line, "qr_waiting")} disabled={!canManageOwnership}>QR Bekliyor</button>
                         </div>
                       </div>
+                      <div className="mt-3 rounded-md border border-amber-400/25 bg-amber-400/5 p-3 font-mono text-[11px] text-amber-100">
+                        <p className="mb-2 font-sans text-xs font-semibold text-amber-200">LINE DEBUG</p>
+                        <div className="grid gap-x-4 gap-y-1 md:grid-cols-2 xl:grid-cols-4">
+                          <span>provider: {String(line.providerType ?? "-")}</span>
+                          <span>status: {String(line.status ?? "-")}</span>
+                          <span>connectionStatus: {String(line.connectionStatus ?? "-")}</span>
+                          <span>isActiveOperationLine: {String(line.isActiveOperationLine ?? false)}</span>
+                          <span>isDefault: {String(line.isDefault ?? false)}</span>
+                          <span>blockedAt: {String(line.blockedAt ?? "-")}</span>
+                          <span>archivedAt: {String(line.archivedAt ?? "-")}</span>
+                          <span>replacedWithLineId: {String(line.replacedByLineId ?? "-")}</span>
+                          <span>canRequestWhatsAppQr: {String(canRequestQr)}</span>
+                          <span>canConnectWhatsApp: {String(canConnectQr)}</span>
+                          <span>canRefreshWhatsAppQr: {String(canRefreshQr)}</span>
+                          <span>canDisconnectWhatsApp: {String(canDisconnectQr)}</span>
+                        </div>
+                      </div>
                       {session && (
                         <div className="mt-3 rounded-md border border-line bg-panelSoft p-3 text-xs text-slate-400">
                           <div className="flex flex-wrap items-center gap-2">
