@@ -154,8 +154,20 @@ class WhatsAppBaileysAdapter implements ProviderAdapter {
         }
 
         if (update.connection === "close") {
-          runtime.status = "disconnected";
+          const statusCode = getBaileysDisconnectStatusCode(update);
           const reason = update.lastDisconnect?.error?.message ?? "Baileys baglantisi kapandi.";
+          if (statusCode === 515) {
+            runtime.status = "connecting";
+            runtime.qr = null;
+            await safePersistBaileysState(line, "connecting", null, sessionPath, "Baileys restart required; session yeniden baslatiliyor.");
+            setTimeout(() => {
+              void this.start(line).catch((error) => {
+                console.error("[baileys] restart after 515 failed", { lineId: line.id, error: error instanceof Error ? error.message : String(error) });
+              });
+            }, 1000);
+            return;
+          }
+          runtime.status = "disconnected";
           await safePersistBaileysState(line, "disconnected", null, sessionPath, reason);
         }
       });
@@ -190,6 +202,10 @@ class WhatsAppBaileysAdapter implements ProviderAdapter {
 }
 
 const manualAdapter = new ManualAdapter();
+function getBaileysDisconnectStatusCode(update: any) {
+  return update?.lastDisconnect?.error?.output?.statusCode ?? update?.lastDisconnect?.error?.statusCode ?? update?.lastDisconnect?.error?.data?.statusCode;
+}
+
 function disableWsNativeAddons() {
   process.env.WS_NO_BUFFER_UTIL = "1";
   process.env.WS_NO_UTF_8_VALIDATE = "1";
