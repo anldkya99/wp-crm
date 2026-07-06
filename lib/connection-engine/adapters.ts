@@ -181,9 +181,13 @@ class WhatsAppBaileysAdapter implements ProviderAdapter {
             runtime.qr = null;
             await safePersistBaileysState(line, "connecting", null, sessionPath, "Baileys restart required; session yeniden baslatiliyor.");
             setTimeout(() => {
-              void this.start(line).catch((error) => {
-                console.error("[baileys] restart after 515 failed", { lineId: line.id, error: error instanceof Error ? error.message : String(error) });
-              });
+              void (async () => {
+                try {
+                  await this.start(line);
+                } catch (error) {
+                  console.error("[baileys] restart after 515 failed", { lineId: line.id, error: error instanceof Error ? error.message : String(error) });
+                }
+              })();
             }, 1000);
             return;
           }
