@@ -227,14 +227,24 @@ function baileysDiagnosticLog(event: string, details: Record<string, unknown>) {
 }
 
 function summarizeConnectionUpdate(lineId: string, update: any) {
+  const error = update?.lastDisconnect?.error;
   return {
     lineId,
     connection: update?.connection ?? null,
-    hasQr: Boolean(update?.qr),
     receivedPendingNotifications: update?.receivedPendingNotifications ?? null,
-    isNewLogin: update?.isNewLogin ?? null,
+    qr: update?.qr ?? null,
+    lastDisconnect: update?.lastDisconnect ? {
+      date: update.lastDisconnect.date ?? null,
+      error: summarizeBaileysError(error)
+    } : null,
+    lastDisconnectError: summarizeBaileysError(error),
+    lastDisconnectErrorOutput: error?.output ?? null,
+    lastDisconnectErrorData: error?.data ?? null,
     statusCode: getBaileysDisconnectStatusCode(update),
-    error: summarizeBaileysError(update?.lastDisconnect?.error)
+    stack: error?.stack ?? null,
+    disconnectReason: getBaileysDisconnectReason(update),
+    isNewLogin: update?.isNewLogin ?? null,
+    isOnline: update?.isOnline ?? null
   };
 }
 
@@ -246,7 +256,8 @@ function summarizeBaileysError(error: any) {
     stack: error?.stack ?? null,
     statusCode: error?.output?.statusCode ?? error?.statusCode ?? error?.data?.statusCode ?? null,
     output: error?.output ?? null,
-    data: error?.data ?? null
+    data: error?.data ?? null,
+    raw: error
   };
 }
 
@@ -254,6 +265,9 @@ function getBaileysDisconnectStatusCode(update: any) {
   return update?.lastDisconnect?.error?.output?.statusCode ?? update?.lastDisconnect?.error?.statusCode ?? update?.lastDisconnect?.error?.data?.statusCode;
 }
 
+function getBaileysDisconnectReason(update: any) {
+  return update?.lastDisconnect?.error?.output?.payload?.reason ?? update?.lastDisconnect?.error?.data?.reason ?? update?.lastDisconnect?.error?.reason ?? null;
+}
 function disableWsNativeAddons() {
   process.env.WS_NO_BUFFER_UTIL = "1";
   process.env.WS_NO_UTF_8_VALIDATE = "1";
