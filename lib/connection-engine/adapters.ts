@@ -104,6 +104,14 @@ class WhatsAppBaileysAdapter implements ProviderAdapter {
     }
 
     const authState = await useMultiFileAuthState(sessionPath);
+    baileysDiagnosticLog("start", {
+      lineId: line.id,
+      providerType: line.providerType,
+      sessionPath,
+      hasCredsMe: Boolean(authState.state?.creds?.me),
+      credsMeId: authState.state?.creds?.me?.id ?? null,
+      hasRegistrationId: typeof authState.state?.creds?.registrationId === "number"
+    });
     const version = fetchLatestBaileysVersion
       ? await fetchLatestBaileysVersion().then((result: { version?: number[] }) => result.version).catch(() => undefined)
       : undefined;
@@ -113,7 +121,17 @@ class WhatsAppBaileysAdapter implements ProviderAdapter {
       browser: ["Operation Pact", "Chrome", "1.1"],
       version
     });
-    sock.ev.on("creds.update", authState.saveCreds);
+    baileysDiagnosticLog("socket_created", { lineId: line.id, version, browser: ["Operation Pact", "Chrome", "1.1"] });
+    sock.ev.on("creds.update", (credsUpdate: any) => {
+      baileysDiagnosticLog("creds.update", {
+        lineId: line.id,
+        hasMe: Boolean(credsUpdate?.me),
+        meId: credsUpdate?.me?.id ?? null,
+        hasAccount: Boolean(credsUpdate?.account),
+        hasSignalIdentities: Boolean(credsUpdate?.signalIdentities)
+      });
+      return authState.saveCreds(credsUpdate);
+    });
 
     const runtime: BaileysRuntime = { sock, qr: null, status: "connecting", sessionPath };
     baileysSessions.set(line.id, runtime);
@@ -139,6 +157,7 @@ class WhatsAppBaileysAdapter implements ProviderAdapter {
       }, 5000);
 
       sock.ev.on("connection.update", async (update: any) => {
+        baileysDiagnosticLog("connection.update", summarizeConnectionUpdate(line.id, update));
         if (update.qr) {
           runtime.qr = update.qr;
           runtime.status = "qr_generated";
@@ -156,6 +175,7 @@ class WhatsAppBaileysAdapter implements ProviderAdapter {
         if (update.connection === "close") {
           const statusCode = getBaileysDisconnectStatusCode(update);
           const reason = update.lastDisconnect?.error?.message ?? "Baileys baglantisi kapandi.";
+          baileysDiagnosticLog("connection.close", { lineId: line.id, statusCode, reason, error: summarizeBaileysError(update.lastDisconnect?.error) });
           if (statusCode === 515) {
             runtime.status = "connecting";
             runtime.qr = null;
@@ -202,6 +222,34 @@ class WhatsAppBaileysAdapter implements ProviderAdapter {
 }
 
 const manualAdapter = new ManualAdapter();
+function baileysDiagnosticLog(event: string, details: Record<string, unknown>) {
+  console.info(`[baileys:diagnostic] ${event}`, details);
+}
+
+function summarizeConnectionUpdate(lineId: string, update: any) {
+  return {
+    lineId,
+    connection: update?.connection ?? null,
+    hasQr: Boolean(update?.qr),
+    receivedPendingNotifications: update?.receivedPendingNotifications ?? null,
+    isNewLogin: update?.isNewLogin ?? null,
+    statusCode: getBaileysDisconnectStatusCode(update),
+    error: summarizeBaileysError(update?.lastDisconnect?.error)
+  };
+}
+
+function summarizeBaileysError(error: any) {
+  if (!error) return null;
+  return {
+    name: error?.name ?? null,
+    message: error?.message ?? null,
+    stack: error?.stack ?? null,
+    statusCode: error?.output?.statusCode ?? error?.statusCode ?? error?.data?.statusCode ?? null,
+    output: error?.output ?? null,
+    data: error?.data ?? null
+  };
+}
+
 function getBaileysDisconnectStatusCode(update: any) {
   return update?.lastDisconnect?.error?.output?.statusCode ?? update?.lastDisconnect?.error?.statusCode ?? update?.lastDisconnect?.error?.data?.statusCode;
 }
