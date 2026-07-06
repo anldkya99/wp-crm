@@ -89,6 +89,7 @@ class WhatsAppBaileysAdapter implements ProviderAdapter {
   }
 
   async start(line: ConnectionLine): Promise<ConnectionActionResult> {
+    disableWsNativeAddons();
     const baileys = await import("@whiskeysockets/baileys");
     const makeWASocket = (baileys.default ?? (baileys as any).makeWASocket) as any;
     const useMultiFileAuthState = (baileys as any).useMultiFileAuthState;
@@ -189,6 +190,11 @@ class WhatsAppBaileysAdapter implements ProviderAdapter {
 }
 
 const manualAdapter = new ManualAdapter();
+function disableWsNativeAddons() {
+  process.env.WS_NO_BUFFER_UTIL = "1";
+  process.env.WS_NO_UTF_8_VALIDATE = "1";
+}
+
 const baileysAdapter = new WhatsAppBaileysAdapter();
 
 export function getProviderAdapter(providerType: string): ProviderAdapter {
