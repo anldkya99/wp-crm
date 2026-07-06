@@ -94,6 +94,7 @@ class WhatsAppBaileysAdapter implements ProviderAdapter {
     const makeWASocket = (baileys.default ?? (baileys as any).makeWASocket) as any;
     const useMultiFileAuthState = (baileys as any).useMultiFileAuthState;
     const fetchLatestBaileysVersion = (baileys as any).fetchLatestBaileysVersion;
+    const Browsers = (baileys as any).Browsers;
     const sessionPath = whatsappSessionPath(line.id);
     await fs.mkdir(sessionPath, { recursive: true });
 
@@ -115,13 +116,14 @@ class WhatsAppBaileysAdapter implements ProviderAdapter {
     const version = fetchLatestBaileysVersion
       ? await fetchLatestBaileysVersion().then((result: { version?: number[] }) => result.version).catch(() => undefined)
       : undefined;
+    const browser = Browsers?.windows?.("Chrome") ?? ["Windows", "Chrome", "10.0"];
     const sock = makeWASocket({
       auth: authState.state,
       printQRInTerminal: false,
-      browser: ["Operation Pact", "Chrome", "1.1"],
+      browser,
       version
     });
-    baileysDiagnosticLog("socket_created", { lineId: line.id, version, browser: ["Operation Pact", "Chrome", "1.1"] });
+    baileysDiagnosticLog("socket_created", { lineId: line.id, version, browser });
     sock.ev.on("creds.update", (credsUpdate: any) => {
       baileysDiagnosticLog("creds.update", {
         lineId: line.id,
