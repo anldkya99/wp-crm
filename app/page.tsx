@@ -2415,10 +2415,14 @@ export default function Home() {
                         </div>
                         <div className="flex flex-wrap justify-end gap-2">
                           <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => editCommunicationLine(line)} disabled={!canManageOwnership}>Düzenle</button>
-                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => { console.log("QR_V2_CLICKED_LINE_ID:", line.id); void refreshWhatsAppQr(line); }} disabled={!canRequestQr}>QR Oluştur v2 TEST</button>
-                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void connectWhatsAppLine(line)} disabled={!canConnectQr}>WhatsApp Bağla</button>
-                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void refreshWhatsAppQr(line)} disabled={!canRefreshQr}>QR Yenile</button>
-                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void disconnectWhatsAppLine(line)} disabled={!canDisconnectQr}>Bağlantıyı Kes</button>
+                          {isWhatsAppBaileysLine(line) && (
+                            <>
+                              <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => { console.log("QR_V2_CLICKED_LINE_ID:", line.id); void refreshWhatsAppQr(line); }} disabled={!canRequestQr}>QR Oluştur v2 TEST</button>
+                              <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void connectWhatsAppLine(line)} disabled={!canConnectQr}>WhatsApp Bağla</button>
+                              <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void refreshWhatsAppQr(line)} disabled={!canRefreshQr}>QR Yenile</button>
+                              <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void disconnectWhatsAppLine(line)} disabled={!canDisconnectQr}>Bağlantıyı Kes</button>
+                            </>
+                          )}
                           <button className="btn btn-primary h-8 px-2 text-xs" onClick={() => void makeLineDefault(line)} disabled={!canManageOwnership || line.isDefault || !canSendWithLineStatus(line.status)}>Aktif Hat Yap</button>
                           <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void replaceCommunicationLine(line)} disabled={!canManageOwnership}>Hattı Değiştir</button>
                           <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void updateLineStatus(line, "blocked")} disabled={!canManageOwnership}>Bloke</button>

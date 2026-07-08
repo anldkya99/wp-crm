@@ -87,7 +87,7 @@ export const connectionEngine = {
 
     const adapter = getProviderAdapter(input.line.providerType);
     const session = await prisma.communicationSession.findUnique({ where: { lineId: input.line.id } });
-    if (input.line.providerType !== "manual" && session?.sessionStatus !== "connected") {
+    if (!isSessionlessSendProvider(input.line.providerType) && session?.sessionStatus !== "connected") {
       await log(input.line, "MESSAGE_SEND_FAILED", session?.sessionStatus ?? input.line.status, "Provider session connected değil.");
       throw new Error("Gerçek provider session connected değil. Önce bağlantıyı tamamlayın.");
     }
@@ -215,6 +215,10 @@ async function logTimeline(lineId: string, operatorId: string | null | undefined
       referenceId: lineId
     }
   });
+}
+
+function isSessionlessSendProvider(providerType: string) {
+  return providerType === "manual" || providerType === "whatsapp_cloud_api" || providerType === "cloud_api";
 }
 
 function normalizeSessionStatus(status: string): ConnectionSessionStatus {

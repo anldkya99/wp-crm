@@ -32,6 +32,70 @@ class ManualAdapter implements ProviderAdapter {
   }
 }
 
+class WhatsAppCloudApiAdapter implements ProviderAdapter {
+  providerType: ConnectionProviderType = "whatsapp_cloud_api";
+  capabilities = ["send_message", "delivery_status"] as ProviderAdapter["capabilities"];
+
+  async requestQr(line: ConnectionLine): Promise<ConnectionActionResult> {
+    return this.ready(line, "WhatsApp Cloud API QR gerektirmez.");
+  }
+
+  async start(line: ConnectionLine): Promise<ConnectionActionResult> {
+    return this.ready(line, "WhatsApp Cloud API token tabanli gonderim icin hazir.");
+  }
+
+  async stop(line: ConnectionLine): Promise<ConnectionActionResult> {
+    return { lineId: line.id, providerType: this.providerType, status: "disconnected", qr: null, message: "WhatsApp Cloud API yerel session kullanmaz." };
+  }
+
+  async reconnect(line: ConnectionLine): Promise<ConnectionActionResult> {
+    return this.ready(line, "WhatsApp Cloud API reconnect gerektirmez.");
+  }
+
+  async healthCheck(line: ConnectionLine): Promise<ConnectionActionResult> {
+    return this.ready(line, "WhatsApp Cloud API ayarlari okunabilir durumda.");
+  }
+
+  async sendMessage(input: SendMessageInput): Promise<SendMessageResult> {
+    const accessToken = process.env.META_WHATSAPP_ACCESS_TOKEN;
+    const phoneNumberId = process.env.META_WHATSAPP_PHONE_NUMBER_ID;
+    const graphVersion = process.env.META_GRAPH_API_VERSION ?? "v20.0";
+    const recipient = normalizeCloudRecipient(input.recipient);
+
+    if (!accessToken) throw new Error("META_WHATSAPP_ACCESS_TOKEN tanimli degil.");
+    if (!phoneNumberId) throw new Error("META_WHATSAPP_PHONE_NUMBER_ID tanimli degil.");
+    if (!recipient) throw new Error("Cloud API alici telefon numarasi bulunamadi.");
+
+    const response = await fetch("https://graph.facebook.com/" + graphVersion + "/" + phoneNumberId + "/messages", {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + accessToken,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        to: recipient,
+        type: "text",
+        text: { body: input.messageText }
+      })
+    });
+
+    const payload = await response.json().catch(() => null) as { messages?: Array<{ id?: string }>; error?: { message?: string } } | null;
+    if (!response.ok) {
+      const message = payload?.error?.message ?? "WhatsApp Cloud API gonderimi basarisiz oldu. HTTP " + response.status;
+      throw new Error(message);
+    }
+
+    const providerMessageId = payload?.messages?.[0]?.id;
+    if (!providerMessageId) throw new Error("WhatsApp Cloud API providerMessageId donmedi.");
+    return { providerMessageId };
+  }
+
+  private ready(line: ConnectionLine, message: string): ConnectionActionResult {
+    return { lineId: line.id, providerType: this.providerType, status: "connected", qr: null, message };
+  }
+}
+
 class MissingAdapter implements ProviderAdapter {
   constructor(public providerType: ConnectionProviderType) {}
   capabilities = [] as ProviderAdapter["capabilities"];
@@ -228,6 +292,7 @@ class WhatsAppBaileysAdapter implements ProviderAdapter {
 }
 
 const manualAdapter = new ManualAdapter();
+const cloudApiAdapter = new WhatsAppCloudApiAdapter();
 function baileysDiagnosticLog(event: string, details: Record<string, unknown>) {
   console.info(`[baileys:diagnostic] ${event}`, details);
 }
@@ -285,6 +350,7 @@ export function getProviderAdapter(providerType: string): ProviderAdapter {
   const normalized = normalizeProviderType(providerType);
   if (normalized === "manual") return manualAdapter;
   if (normalized === "whatsapp_baileys") return baileysAdapter;
+  if (normalized === "whatsapp_cloud_api" || normalized === "cloud_api") return cloudApiAdapter;
   return new MissingAdapter(normalized);
 }
 
@@ -303,6 +369,10 @@ export function normalizeProviderType(providerType: string): ConnectionProviderT
     providerType === "sms"
   ) return providerType;
   return "manual";
+}
+
+function normalizeCloudRecipient(phone: string) {
+  return phone.replace(/\D/g, "");
 }
 
 function whatsappSessionPath(lineId: string) {
