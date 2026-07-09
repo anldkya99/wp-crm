@@ -4,8 +4,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   BarChart3,
   Archive,
+  ArrowRight,
   Bell,
   BookOpen,
+  BrainCircuit,
+  BriefcaseBusiness,
+  Building2,
   CalendarClock,
   CheckCircle2,
   ClipboardList,
@@ -22,6 +26,7 @@ import {
   Search,
   Send,
   Settings,
+  Store,
   Trash2,
   Volume2,
   VolumeX,
@@ -58,6 +63,7 @@ const emptyData: AppData = {
 };
 
 const menu = [
+  { key: "Operation Pact Home", icon: Building2 },
   { key: "Dashboard", icon: BarChart3 },
   { key: "Talepler", icon: ClipboardList },
   { key: "Mesajlar", icon: MessageCircle },
@@ -67,6 +73,15 @@ const menu = [
   { key: "Operatörler", icon: UsersRound },
   { key: "Operasyon Performansı", icon: BarChart3 },
   { key: "Ayarlar", icon: Settings }
+] as const;
+
+const operationPactModules = [
+  { key: "Communications", title: "Communications", description: "WP, SMS, Voice, eSIM, Number Management", icon: MessageCircle, target: "Dashboard" },
+  { key: "Customer Relations", title: "Customer Relations", description: "Live Chat, AI Agent, 7/24 Chat Operations", icon: UsersRound, target: "Customer Relations" },
+  { key: "Operations", title: "Operations", description: "Task Center, Technical Support, Workflow, Incident Management", icon: BriefcaseBusiness, target: "Operations" },
+  { key: "Executive", title: "Executive", description: "Management, Managers, Reports, Team Control", icon: BarChart3, target: "Executive" },
+  { key: "Marketplace", title: "Marketplace", description: "Providers, Add-ons, API Services", icon: Store, target: "Marketplace" },
+  { key: "AI Center", title: "AI Center", description: "Assistants, Automation, Reports", icon: BrainCircuit, target: "AI Center" }
 ] as const;
 
 const requestStatuses: RequestStatus[] = ["Yeni", "İşlemde", "Beklemede", "Tamamlandı", "Kapatıldı"];
@@ -111,7 +126,8 @@ const lineConnectionStatusLabels: Record<string, string> = {
   error: "Hata"
 };
 
-type ActiveMenu = (typeof menu)[number]["key"];
+type DepartmentPage = (typeof operationPactModules)[number]["key"];
+type ActiveMenu = (typeof menu)[number]["key"] | DepartmentPage;
 type MessageSubMenu = "Tüm Mesajlar" | "Numara Kaydet" | "Sohbet Deposu";
 type SettingsSubTab = "Genel" | "Sistem Kılavuzu";
 type MemberDetailTab = "Genel Bilgiler" | "Notlar" | "Talepler" | "Görevler" | "Mesajlar" | "Zaman Çizelgesi";
@@ -175,7 +191,7 @@ export default function Home() {
   const [user, setUser] = useState<SessionUser | null>(null);
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [loginError, setLoginError] = useState("");
-  const [active, setActive] = useState<ActiveMenu>("Dashboard");
+  const [active, setActive] = useState<ActiveMenu>("Operation Pact Home");
   const [data, setData] = useState<AppData>(emptyData);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -304,7 +320,7 @@ export default function Home() {
   }, [user]);
 
   useEffect(() => {
-    if (user && !canUseMenu(active, user)) setActive("Dashboard");
+    if (user && !canUseMenu(active, user)) setActive("Operation Pact Home");
   }, [active, user]);
 
   useEffect(() => {
@@ -1693,6 +1709,14 @@ export default function Home() {
 
         <div className={clsx("min-h-0 flex-1 p-4 md:p-6", active === "Mesajlar" ? "overflow-auto lg:overflow-hidden" : "overflow-auto")}>
           {error && <p className="mb-4 rounded-md border border-coral/30 bg-coral/10 p-3 text-sm text-red-200">{error}</p>}
+
+          {active === "Operation Pact Home" && (
+            <OperationPactHome user={user} onOpen={(nextActive) => setActive(nextActive)} />
+          )}
+
+          {isDepartmentPlaceholder(active) && (
+            <DepartmentPlaceholder active={active} onBack={() => setActive("Operation Pact Home")} />
+          )}
 
           {active === "Dashboard" && (
             <div className="space-y-6">
@@ -4251,6 +4275,68 @@ function buildRecentContactActivities(
   return activities.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
+function OperationPactHome({ user, onOpen }: { user: SessionUser; onOpen: (active: ActiveMenu) => void }) {
+  return (
+    <section className="space-y-6">
+      <div className="relative overflow-hidden rounded-lg border border-line bg-[radial-gradient(circle_at_top_left,rgba(51,214,159,0.18),transparent_34%),linear-gradient(135deg,rgba(12,28,31,0.98),rgba(5,12,14,0.98))] p-6 shadow-glow md:p-8">
+        <div className="max-w-3xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.32em] text-mint">Operation Pact Core</p>
+          <h1 className="mt-4 text-3xl font-bold text-white md:text-5xl">Enterprise Operations Command Center</h1>
+          <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-300 md:text-base">
+            Communications, customer relations, operations, executive control, marketplace services and AI operations will live under one modular platform shell.
+          </p>
+          <div className="mt-6 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+            <span className="rounded-full border border-mint/30 bg-mint/10 px-3 py-1 text-mint">Signed in: {user.name}</span>
+            <span className="rounded-full border border-line bg-panelSoft px-3 py-1">Role: {user.role}</span>
+            <span className="rounded-full border border-line bg-panelSoft px-3 py-1">Core shell v1</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {operationPactModules.map((module) => {
+          const Icon = module.icon;
+          return (
+            <article key={module.key} className="group flex min-h-[260px] flex-col justify-between rounded-lg border border-line bg-panel p-5 transition hover:-translate-y-0.5 hover:border-mint/45 hover:shadow-glow">
+              <div>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-md border border-mint/20 bg-mint/10 text-mint">
+                    <Icon size={24} />
+                  </div>
+                  <span className="rounded-full border border-line bg-panelSoft px-2.5 py-1 text-[11px] font-semibold text-slate-400">Department</span>
+                </div>
+                <h2 className="mt-5 text-xl font-bold text-white">{module.title}</h2>
+                <p className="mt-3 text-sm leading-6 text-slate-400">{module.description}</p>
+              </div>
+              <button className="btn btn-primary mt-6 w-full justify-center" onClick={() => onOpen(module.target as ActiveMenu)}>
+                Open Department <ArrowRight size={16} />
+              </button>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function DepartmentPlaceholder({ active, onBack }: { active: ActiveMenu; onBack: () => void }) {
+  const module = operationPactModules.find((item) => item.key === active);
+  const Icon = module?.icon ?? Building2;
+  return (
+    <section className="flex min-h-[calc(100vh-9rem)] items-center justify-center rounded-lg border border-line bg-panel p-6">
+      <div className="max-w-xl text-center">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-md border border-mint/25 bg-mint/10 text-mint">
+          <Icon size={30} />
+        </div>
+        <p className="mt-6 text-xs font-semibold uppercase tracking-[0.28em] text-mint">Coming Soon</p>
+        <h1 className="mt-3 text-3xl font-bold text-white">{module?.title ?? active}</h1>
+        <p className="mt-3 text-sm leading-6 text-slate-400">{module?.description ?? "This department placeholder is reserved for a future Operation Pact module."}</p>
+        <button className="btn btn-secondary mx-auto mt-6" onClick={onBack}>Back to Command Center</button>
+      </div>
+    </section>
+  );
+}
+
 function MiniMetric({ label, value, tone }: { label: string; value: number; tone?: "warning" }) {
   return (
     <div className={clsx("rounded-md border bg-panelSoft p-3", tone === "warning" ? "border-amber-400/30" : "border-line")}>
@@ -5415,6 +5501,10 @@ function timelineIcon(eventType: string) {
   if (eventType.startsWith("TAG")) return "🏷";
   if (eventType.includes("RISK") || eventType.includes("STATUS")) return "⚠️";
   return "👤";
+}
+
+function isDepartmentPlaceholder(active: ActiveMenu) {
+  return active === "Customer Relations" || active === "Operations" || active === "Executive" || active === "Marketplace" || active === "AI Center";
 }
 
 function canUseMenu(key: ActiveMenu, user: SessionUser | null) {
