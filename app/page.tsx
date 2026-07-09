@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -63,7 +63,6 @@ const emptyData: AppData = {
 };
 
 const menu = [
-  { key: "Operation Pact Home", icon: Building2 },
   { key: "Dashboard", icon: BarChart3 },
   { key: "Talepler", icon: ClipboardList },
   { key: "Mesajlar", icon: MessageCircle },
@@ -127,7 +126,7 @@ const lineConnectionStatusLabels: Record<string, string> = {
 };
 
 type DepartmentPage = (typeof operationPactModules)[number]["key"];
-type ActiveMenu = (typeof menu)[number]["key"] | DepartmentPage;
+type ActiveMenu = "Operation Pact Home" | (typeof menu)[number]["key"] | DepartmentPage;
 type MessageSubMenu = "Tüm Mesajlar" | "Numara Kaydet" | "Sohbet Deposu";
 type SettingsSubTab = "Genel" | "Sistem Kılavuzu";
 type MemberDetailTab = "Genel Bilgiler" | "Notlar" | "Talepler" | "Görevler" | "Mesajlar" | "Zaman Çizelgesi";
@@ -640,6 +639,12 @@ export default function Home() {
     }
     setUser(payload.user);
     window.sessionStorage.setItem("whatsapp-ops-user", JSON.stringify(payload.user));
+  }
+
+  function logout() {
+    window.sessionStorage.removeItem("whatsapp-ops-user");
+    setUser(null);
+    setActive("Operation Pact Home");
   }
 
   async function saveRequest(startConversation: boolean) {
@@ -1538,6 +1543,44 @@ export default function Home() {
     );
   }
 
+  if (active === "Operation Pact Home") {
+    return (
+      <main className="min-h-screen overflow-y-auto bg-[radial-gradient(circle_at_top_left,rgba(51,214,159,0.16),transparent_34%),linear-gradient(135deg,#071113,#05090b)] p-4 text-slate-100 md:p-8">
+        <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col">
+          <header className="mb-6 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-medium leading-none text-slate-400">Operation</p>
+              <p className="mt-1 text-3xl font-bold leading-none tracking-wide text-white">Pact</p>
+            </div>
+            <button className="btn btn-secondary" onClick={logout}>
+              <LogOut size={17} /> Çıkış
+            </button>
+          </header>
+          <OperationPactHome user={user} onOpen={(nextActive) => setActive(nextActive)} />
+        </div>
+      </main>
+    );
+  }
+
+  if (isDepartmentPlaceholder(active)) {
+    return (
+      <main className="min-h-screen overflow-y-auto bg-[radial-gradient(circle_at_top_left,rgba(51,214,159,0.12),transparent_32%),linear-gradient(135deg,#071113,#05090b)] p-4 text-slate-100 md:p-8">
+        <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl flex-col">
+          <header className="mb-6 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-medium leading-none text-slate-400">Operation</p>
+              <p className="mt-1 text-3xl font-bold leading-none tracking-wide text-white">Pact</p>
+            </div>
+            <button className="btn btn-secondary" onClick={logout}>
+              <LogOut size={17} /> Çıkış
+            </button>
+          </header>
+          <DepartmentPlaceholder active={active} onLogout={logout} />
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="flex min-h-screen bg-ink text-slate-100">
       <aside className="relative hidden h-screen w-72 shrink-0 flex-col border-r border-line bg-panel p-4 lg:flex">
@@ -1697,10 +1740,7 @@ export default function Home() {
             </button>
             <button
               className="btn btn-secondary"
-              onClick={() => {
-                window.sessionStorage.removeItem("whatsapp-ops-user");
-                setUser(null);
-              }}
+              onClick={logout}
             >
               <LogOut size={17} /> Çıkış
             </button>
@@ -1709,14 +1749,6 @@ export default function Home() {
 
         <div className={clsx("min-h-0 flex-1 p-4 md:p-6", active === "Mesajlar" ? "overflow-auto lg:overflow-hidden" : "overflow-auto")}>
           {error && <p className="mb-4 rounded-md border border-coral/30 bg-coral/10 p-3 text-sm text-red-200">{error}</p>}
-
-          {active === "Operation Pact Home" && (
-            <OperationPactHome user={user} onOpen={(nextActive) => setActive(nextActive)} />
-          )}
-
-          {isDepartmentPlaceholder(active) && (
-            <DepartmentPlaceholder active={active} onBack={() => setActive("Operation Pact Home")} />
-          )}
 
           {active === "Dashboard" && (
             <div className="space-y-6">
@@ -4319,7 +4351,7 @@ function OperationPactHome({ user, onOpen }: { user: SessionUser; onOpen: (activ
   );
 }
 
-function DepartmentPlaceholder({ active, onBack }: { active: ActiveMenu; onBack: () => void }) {
+function DepartmentPlaceholder({ active, onLogout }: { active: ActiveMenu; onLogout: () => void }) {
   const module = operationPactModules.find((item) => item.key === active);
   const Icon = module?.icon ?? Building2;
   return (
@@ -4331,7 +4363,7 @@ function DepartmentPlaceholder({ active, onBack }: { active: ActiveMenu; onBack:
         <p className="mt-6 text-xs font-semibold uppercase tracking-[0.28em] text-mint">Coming Soon</p>
         <h1 className="mt-3 text-3xl font-bold text-white">{module?.title ?? active}</h1>
         <p className="mt-3 text-sm leading-6 text-slate-400">{module?.description ?? "This department placeholder is reserved for a future Operation Pact module."}</p>
-        <button className="btn btn-secondary mx-auto mt-6" onClick={onBack}>Back to Command Center</button>
+        <button className="btn btn-secondary mx-auto mt-6" onClick={onLogout}>Çıkış Yap</button>
       </div>
     </section>
   );
