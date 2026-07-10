@@ -1587,14 +1587,20 @@ export default function Home() {
   return (
     <main className="bg-op-grid flex min-h-screen text-[#F4F1EA]">
       <aside className="surface-glass relative hidden h-screen w-72 shrink-0 flex-col border-r p-4 lg:flex">
-        <div className="op-card mb-8 flex min-h-[108px] flex-col items-center justify-center p-4 text-center">
+        <button
+          type="button"
+          aria-label="Operation Pact Home ekranına dön"
+          title="Operation Pact Home"
+          className="op-card mb-8 flex min-h-[108px] w-full cursor-pointer flex-col items-center justify-center p-4 text-center transition hover:border-gold/35 hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/30"
+          onClick={() => setActive("Operation Pact Home")}
+        >
           <p className="text-sm font-medium leading-none text-[#9CA8A8]">Operation</p>
           <p className="mt-1 text-3xl font-bold leading-none tracking-wide text-[#F4F1EA]">Pact</p>
           <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-gold/25 bg-[#071113]/80 px-3 py-1 text-[11px] font-medium text-[#D8D4CA] shadow-op-xs">
             <span className="h-1.5 w-1.5 rounded-full bg-[#4BA88F] shadow-[0_0_8px_rgba(75,168,143,0.55)]" />
             <span>WhatsApp Engine v1.1</span>
           </div>
-        </div>
+        </button>
         <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pb-16">
           {visibleMenu.map((item) => {
             const Icon = item.icon;
