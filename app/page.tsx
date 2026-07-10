@@ -1545,15 +1545,18 @@ export default function Home() {
 
   if (active === "Operation Pact Home") {
     return (
-      <main className="min-h-screen overflow-y-auto bg-[radial-gradient(circle_at_top_left,rgba(51,214,159,0.16),transparent_34%),linear-gradient(135deg,#071113,#05090b)] p-4 text-slate-100 md:p-8">
-        <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col">
-          <header className="mb-6 flex items-center justify-between gap-4">
+      <main className="relative min-h-screen overflow-y-auto bg-[#05080A] text-[#F4F1EA]">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(200,164,93,0.12),transparent_32%),radial-gradient(circle_at_82%_18%,rgba(75,168,143,0.08),transparent_28%),linear-gradient(135deg,#05080A,#071113_58%,#05080A)]" />
+        <div className="pointer-events-none absolute inset-0 opacity-[0.055] [background-image:linear-gradient(rgba(244,241,234,0.9)_1px,transparent_1px),linear-gradient(90deg,rgba(244,241,234,0.9)_1px,transparent_1px)] [background-size:48px_48px]" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
+        <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col px-4 py-6 md:px-8 md:py-8">
+          <header className="mb-8 flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-medium leading-none text-slate-400">Operation</p>
-              <p className="mt-1 text-3xl font-bold leading-none tracking-wide text-white">Pact</p>
+              <p className="text-[11px] font-medium uppercase tracking-[0.42em] text-[#9CA8A8]">Operation</p>
+              <p className="mt-1 text-3xl font-semibold leading-none tracking-[0.14em] text-[#F4F1EA]">Pact</p>
             </div>
-            <button className="btn btn-secondary" onClick={logout}>
-              <LogOut size={17} /> Çıkış
+            <button className="rounded-full border border-line bg-[#0B1718]/80 px-4 py-2 text-sm font-medium text-[#D8D4CA] transition hover:border-gold/40 hover:bg-[#101D1E] hover:text-[#F4F1EA]" onClick={logout}>
+              <span className="inline-flex items-center gap-2"><LogOut size={16} /> Çıkış</span>
             </button>
           </header>
           <OperationPactHome user={user} onOpen={(nextActive) => setActive(nextActive)} />
@@ -1561,15 +1564,14 @@ export default function Home() {
       </main>
     );
   }
-
   if (isDepartmentPlaceholder(active)) {
     return (
-      <main className="min-h-screen overflow-y-auto bg-[radial-gradient(circle_at_top_left,rgba(51,214,159,0.12),transparent_32%),linear-gradient(135deg,#071113,#05090b)] p-4 text-slate-100 md:p-8">
+      <main className="min-h-screen overflow-y-auto bg-[radial-gradient(circle_at_top_left,rgba(200,164,93,0.12),transparent_32%),linear-gradient(135deg,#05080A,#071113)] p-4 text-[#F4F1EA] md:p-8">
         <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl flex-col">
           <header className="mb-6 flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-medium leading-none text-slate-400">Operation</p>
-              <p className="mt-1 text-3xl font-bold leading-none tracking-wide text-white">Pact</p>
+              <p className="text-sm font-medium leading-none text-[#9CA8A8]">Operation</p>
+              <p className="mt-1 text-3xl font-bold leading-none tracking-wide text-[#F4F1EA]">Pact</p>
             </div>
             <button className="btn btn-secondary" onClick={logout}>
               <LogOut size={17} /> Çıkış
@@ -1585,8 +1587,8 @@ export default function Home() {
     <main className="flex min-h-screen bg-ink text-slate-100">
       <aside className="relative hidden h-screen w-72 shrink-0 flex-col border-r border-line bg-panel p-4 lg:flex">
         <div className="mb-8 flex min-h-[108px] flex-col items-center justify-center rounded-md border border-line bg-panelSoft p-4 text-center">
-          <p className="text-sm font-medium leading-none text-slate-400">Operation</p>
-          <p className="mt-1 text-3xl font-bold leading-none tracking-wide text-white">Pact</p>
+          <p className="text-sm font-medium leading-none text-[#9CA8A8]">Operation</p>
+          <p className="mt-1 text-3xl font-bold leading-none tracking-wide text-[#F4F1EA]">Pact</p>
           <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-mint/25 bg-mint/10 px-3 py-1 text-[11px] font-medium text-mint">
             <span className="h-1.5 w-1.5 rounded-full bg-mint shadow-[0_0_10px_rgba(51,214,159,0.75)]" />
             <span>WhatsApp Engine v1.1</span>
@@ -1598,7 +1600,7 @@ export default function Home() {
             return (
               <div key={item.key}>
                 <button
-                  className={clsx("flex h-11 w-full items-center gap-3 rounded-md px-3 text-left text-sm font-medium transition", active === item.key ? "bg-mint text-ink" : "text-slate-300 hover:bg-panelSoft hover:text-white")}
+                  className={clsx("flex h-11 w-full items-center gap-3 rounded-md px-3 text-left text-sm font-medium transition", active === item.key ? "bg-gold text-ink" : "text-slate-300 hover:bg-panelSoft hover:text-white")}
                   onClick={() => {
                     setActive(item.key);
                     if (item.key === "Mesajlar") setMessageSubMenu("Tüm Mesajlar");
@@ -1617,7 +1619,7 @@ export default function Home() {
                         key={subItem}
                         className={clsx(
                           "h-9 w-full rounded-md px-3 text-left text-sm transition",
-                          messageSubMenu === subItem ? "bg-panelSoft text-mint" : "text-slate-400 hover:bg-panelSoft hover:text-white"
+                          messageSubMenu === subItem ? "bg-gold/10 text-gold" : "text-slate-400 hover:bg-panelSoft hover:text-white"
                         )}
                         onClick={() => {
                           setActive("Mesajlar");
@@ -1637,7 +1639,7 @@ export default function Home() {
 
       <div className="fixed bottom-4 left-4 z-40 hidden w-64 lg:block">
         <button
-          className="flex h-11 w-full items-center gap-3 rounded-md border border-line bg-panelSoft px-3 text-left text-sm font-medium text-slate-200 shadow-glow transition hover:border-mint/40 hover:text-white"
+          className="flex h-11 w-full items-center gap-3 rounded-md border border-line bg-panelSoft px-3 text-left text-sm font-medium text-slate-200 shadow-glow transition hover:border-gold/40 hover:text-white"
           onClick={() => setTaskAssistantOpen((open) => !open)}
         >
           <Bell size={18} />
@@ -1706,7 +1708,7 @@ export default function Home() {
                     <button
                       className={clsx(
                         "flex h-10 min-w-10 items-center justify-center rounded-full border px-2 text-xs font-bold transition",
-                        line ? sessionLineId === line.id ? "border-mint bg-mint text-ink" : "border-mint/30 bg-mint/10 text-mint hover:border-mint/70" : "border-line bg-panelSoft text-slate-500 hover:text-white"
+                        line ? sessionLineId === line.id ? "border-gold bg-gold text-ink" : "border-gold/30 bg-gold/10 text-gold hover:border-gold/70" : "border-line bg-panelSoft text-slate-500 hover:text-white"
                       )}
                       title={line ? line.name : "Boş oturum"}
                       onClick={() => void openLineSessionSlot(slot)}
@@ -1753,14 +1755,14 @@ export default function Home() {
           {active === "Dashboard" && (
             <div className="space-y-6">
               <div className="grid gap-3 xl:grid-cols-[1.05fr_1fr_1fr]">
-                <button className="relative rounded-lg border border-mint/25 bg-panel p-4 text-left shadow-glow transition hover:border-mint/60" onClick={() => setTaskCenterOpen(true)}>
+                <button className="relative rounded-lg border border-gold/25 bg-panel p-4 text-left shadow-glow transition hover:border-gold/50" onClick={() => setTaskCenterOpen(true)}>
                   {overduePendingTaskCount > 0 && (
                     <span className="absolute right-3 top-3 inline-flex h-7 min-w-7 items-center justify-center rounded-full border border-amber-400/40 bg-amber-500/20 px-2 text-xs font-bold text-amber-100">
                       {overduePendingTaskCount}
                     </span>
                   )}
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-md bg-mint text-ink"><CheckCircle2 size={20} /></div>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-md bg-gold text-ink"><CheckCircle2 size={20} /></div>
                     <div>
                       <p className="font-semibold text-white">Görev Merkezi{pendingTodayTasks.length > 0 ? ` (${pendingTodayTasks.length})` : ""}</p>
                       <p className="mt-1 text-sm text-slate-400">{pendingTodayTasks.length} bekleyen görev</p>
@@ -1904,7 +1906,7 @@ export default function Home() {
                   {(["Bugünkü Talepler", "Geçmiş Talepler"] as const).map((tab) => (
                     <button
                       key={tab}
-                      className={clsx("h-9 rounded-md border px-3 text-sm transition", requestListTab === tab ? "border-mint/40 bg-mint/10 text-mint" : "border-line bg-panelSoft text-slate-400 hover:text-white")}
+                      className={clsx("h-9 rounded-md border px-3 text-sm transition", requestListTab === tab ? "border-gold/40 bg-gold/10 text-gold" : "border-line bg-panelSoft text-slate-400 hover:text-white")}
                       onClick={() => setRequestListTab(tab)}
                     >
                       {tab}
@@ -1926,7 +1928,7 @@ export default function Home() {
                       {["Tüm Hatlar", ...scopedData.communicationLines.map((line) => line.id)].map((lineId) => (
                         <button
                           key={lineId}
-                          className={clsx("h-8 shrink-0 rounded-md border px-2 text-xs transition", messageLineFilter === lineId ? "border-mint/40 bg-mint/10 text-mint" : "border-line bg-panelSoft text-slate-400 hover:text-white")}
+                          className={clsx("h-8 shrink-0 rounded-md border px-2 text-xs transition", messageLineFilter === lineId ? "border-gold/40 bg-gold/10 text-gold" : "border-line bg-panelSoft text-slate-400 hover:text-white")}
                           onClick={() => setMessageLineFilter(lineId)}
                         >
                           {lineId === "Tüm Hatlar" ? "Tüm Hatlar" : lineShortName(scopedData.communicationLines.find((line) => line.id === lineId)!)}
@@ -2543,7 +2545,7 @@ export default function Home() {
                 {(["Genel Performans", "Görev Performansı", "Talep Performansı", "TTS Performansı"] as const).map((tab) => (
                   <button
                     key={tab}
-                    className={clsx("h-9 rounded-md border px-3 text-sm transition", performanceTab === tab ? "border-mint/40 bg-mint/10 text-mint" : "border-line bg-panelSoft text-slate-400 hover:text-white")}
+                    className={clsx("h-9 rounded-md border px-3 text-sm transition", performanceTab === tab ? "border-gold/40 bg-gold/10 text-gold" : "border-line bg-panelSoft text-slate-400 hover:text-white")}
                     onClick={() => setPerformanceTab(tab)}
                   >
                     {tab}
@@ -2559,7 +2561,7 @@ export default function Home() {
                     <p className="text-4xl font-bold text-white">{operationScore}</p>
                     <p className="pb-1 text-sm text-slate-400">/100</p>
                   </div>
-                  <p className="mt-3 text-sm leading-6 text-slate-400">Bugünkü görev tamamlama oranı, bekleyen mesajlar ve geçmiş iş yüküne göre hesaplandı.</p>
+                  <p className="mt-3 text-sm leading-6 text-[#9CA8A8]">Bugünkü görev tamamlama oranı, bekleyen mesajlar ve geçmiş iş yüküne göre hesaplandı.</p>
                   <div className="mt-4 rounded-md border border-line bg-ink/35 p-3">
                     <p className="text-xs font-semibold uppercase text-slate-400">Skor Açıklaması</p>
                     <div className="mt-3 space-y-2 text-sm">
@@ -2766,7 +2768,7 @@ export default function Home() {
                   {(["Genel", "Sistem Kılavuzu"] as const).map((tab) => (
                     <button
                       key={tab}
-                      className={clsx("flex h-8 items-center gap-2 rounded px-3 text-xs transition", settingsSubTab === tab ? "bg-mint text-ink" : "text-slate-400 hover:text-white")}
+                      className={clsx("flex h-8 items-center gap-2 rounded px-3 text-xs transition", settingsSubTab === tab ? "bg-gold text-ink" : "text-slate-400 hover:text-white")}
                       onClick={() => setSettingsSubTab(tab)}
                     >
                       {tab === "Sistem Kılavuzu" && <BookOpen size={14} />}
@@ -2781,11 +2783,11 @@ export default function Home() {
             <section className="grid gap-4 md:grid-cols-2">
               <div className="rounded-lg border border-line bg-panel p-5">
                 <h3 className="font-semibold text-white">WhatsApp Bağlantısı</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-400">V2 gerçek PostgreSQL verisiyle çalışır. WhatsApp API entegrasyonu eklenene kadar gelen mesajlar admin simülasyonu ile messages tablosuna CUSTOMER olarak yazılır.</p>
+                <p className="mt-2 text-sm leading-6 text-[#9CA8A8]">V2 gerçek PostgreSQL verisiyle çalışır. WhatsApp API entegrasyonu eklenene kadar gelen mesajlar admin simülasyonu ile messages tablosuna CUSTOMER olarak yazılır.</p>
               </div>
               <div className="rounded-lg border border-line bg-panel p-5">
                 <h3 className="font-semibold text-white">Veri Saklama</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-400">Talep, müşteri, konuşma, mesaj, hazır cevap ve kullanıcı kayıtları Prisma üzerinden PostgreSQL tablolarına kaydedilir.</p>
+                <p className="mt-2 text-sm leading-6 text-[#9CA8A8]">Talep, müşteri, konuşma, mesaj, hazır cevap ve kullanıcı kayıtları Prisma üzerinden PostgreSQL tablolarına kaydedilir.</p>
               </div>
               {canManageOwnership && (
                 <>
@@ -2880,7 +2882,7 @@ export default function Home() {
                         {(["Bugün", "Dün", "Son 7 gün", "Özel tarih"] as const).map((mode) => (
                           <button
                             key={mode}
-                            className={clsx("h-8 rounded-md border px-2 text-xs transition", automationLogDateMode === mode ? "border-mint/40 bg-mint/10 text-mint" : "border-line bg-panelSoft text-slate-400 hover:text-white")}
+                            className={clsx("h-8 rounded-md border px-2 text-xs transition", automationLogDateMode === mode ? "border-gold/40 bg-gold/10 text-gold" : "border-line bg-panelSoft text-slate-400 hover:text-white")}
                             onClick={() => setAutomationLogDateMode(mode)}
                           >
                             {mode}
@@ -2898,7 +2900,7 @@ export default function Home() {
                         {(["Tümü", "Oluşturuldu", "Hata", "Zaten var"] as const).map((filter) => (
                           <button
                             key={filter}
-                            className={clsx("h-8 rounded-md border px-2 text-xs transition", automationLogFilter === filter ? "border-mint/40 bg-mint/10 text-mint" : "border-line bg-panelSoft text-slate-400 hover:text-white")}
+                            className={clsx("h-8 rounded-md border px-2 text-xs transition", automationLogFilter === filter ? "border-gold/40 bg-gold/10 text-gold" : "border-line bg-panelSoft text-slate-400 hover:text-white")}
                             onClick={() => setAutomationLogFilter(filter)}
                           >
                             {filter}
@@ -2920,7 +2922,7 @@ export default function Home() {
           <section className="max-h-[90vh] w-[95vw] max-w-[1600px] overflow-y-auto rounded-lg border border-line bg-panel p-5 shadow-glow">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-xl font-bold text-white">Görev Merkezi</h2>
+                <h2 className="text-xl font-bold text-[#F4F1EA]">Görev Merkezi</h2>
                 <p className="mt-1 text-sm text-slate-400">Bugünkü görevler ve kişi atamaları</p>
               </div>
               <button className="btn btn-secondary" onClick={() => setTaskCenterOpen(false)}>Kapat</button>
@@ -2929,7 +2931,7 @@ export default function Home() {
               {(["Bugünkü Görevler", "Geçmiş Görevler"] as const).map((tab) => (
                 <button
                   key={tab}
-                  className={clsx("h-9 rounded-md border px-3 text-sm transition", taskCenterTab === tab ? "border-mint/40 bg-mint/10 text-mint" : "border-line bg-panelSoft text-slate-400 hover:text-white")}
+                  className={clsx("h-9 rounded-md border px-3 text-sm transition", taskCenterTab === tab ? "border-gold/40 bg-gold/10 text-gold" : "border-line bg-panelSoft text-slate-400 hover:text-white")}
                   onClick={() => setTaskCenterTab(tab)}
                 >
                   {tab}
@@ -3033,7 +3035,7 @@ export default function Home() {
           <section className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-lg border border-line bg-panel p-5 shadow-glow">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-xl font-bold text-white">Alarm Merkezi</h2>
+                <h2 className="text-xl font-bold text-[#F4F1EA]">Alarm Merkezi</h2>
                 <p className="mt-1 text-sm text-slate-400">Alarm oluştur ve geçmişi takip et</p>
               </div>
               <button className="btn btn-secondary" onClick={() => setAlarmCenterOpen(false)}>Kapat</button>
@@ -3066,7 +3068,7 @@ export default function Home() {
           <section className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg border border-line bg-panel p-5 shadow-glow">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-xl font-bold text-white">Talep Detayı</h2>
+                <h2 className="text-xl font-bold text-[#F4F1EA]">Talep Detayı</h2>
                 <p className="mt-1 text-sm text-slate-400">{requestDisplayName(requestDetail, requestDetailContact)} | {requestPhone(requestDetail, requestDetailContact)} | {formatDate(requestDetail.createdAt)}</p>
               </div>
               <button className="btn btn-secondary" onClick={() => setRequestDetailId("")}>Kapat</button>
@@ -3142,7 +3144,7 @@ export default function Home() {
           <section className="max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-lg border border-line bg-panel p-5 shadow-glow">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-xl font-bold text-white">Kişi Görev Detayı</h2>
+                <h2 className="text-xl font-bold text-[#F4F1EA]">Kişi Görev Detayı</h2>
                 <p className="mt-1 text-sm text-slate-400">{taskDetailContact.name} | {taskDetailContact.phone} | {taskDetailDateKey ? formatShortDate(new Date(`${taskDetailDateKey}T00:00:00`)) : ""}</p>
               </div>
               <button className="btn btn-secondary" onClick={() => {
@@ -3232,7 +3234,7 @@ export default function Home() {
           <section className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg border border-line bg-panel p-5 shadow-glow">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-xl font-bold text-white">Müşteri Zaman Çizelgesi</h2>
+                <h2 className="text-xl font-bold text-[#F4F1EA]">Müşteri Zaman Çizelgesi</h2>
                 <p className="mt-1 text-sm text-slate-400">{timelineContact.name} | {timelineContact.phone}</p>
               </div>
               <button className="btn btn-secondary" onClick={() => setTimelineContactId("")}>Kapat</button>
@@ -3257,7 +3259,7 @@ export default function Home() {
           <section className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg border border-line bg-panel p-5 shadow-glow">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-xl font-bold text-white">Oto Sesli Yanıt</h2>
+                <h2 className="text-xl font-bold text-[#F4F1EA]">Oto Sesli Yanıt</h2>
                 <p className="mt-1 text-sm text-slate-400">Türkçe, doğal kadın sesiyle gerçek TTS önizleme akışı</p>
               </div>
               <button className="btn btn-secondary" onClick={() => setVoiceModalOpen(false)}>Kapat</button>
@@ -3302,7 +3304,7 @@ export default function Home() {
                   {data.voiceTemplates.filter((template) => template.isActive).map((template) => (
                     <button
                       key={template.id}
-                      className="w-full rounded-md border border-line bg-panelSoft p-3 text-left text-sm transition hover:border-mint/40"
+                      className="w-full rounded-md border border-line bg-panelSoft p-3 text-left text-sm transition hover:border-gold/40"
                       onClick={() => {
                         setVoiceDraft(renderVoiceTemplate(template.content, selectedContact, selectedContact ? latestRequestForContact(data, selectedContact.id) : undefined));
                         setVoiceAudioUrl("");
@@ -3331,7 +3333,7 @@ export default function Home() {
           <section className="max-h-[90vh] w-full max-w-6xl overflow-y-auto rounded-lg border border-line bg-panel p-5 shadow-glow">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-xl font-bold text-white">Üye Detayı</h2>
+                <h2 className="text-xl font-bold text-[#F4F1EA]">Üye Detayı</h2>
                 <p className="mt-1 text-sm text-slate-400">{memberDisplayName(memberDetail)} | {memberDetail.phone}</p>
                 <div className="mt-3"><TagBadges tags={memberDetail.tags} /></div>
               </div>
@@ -3341,7 +3343,7 @@ export default function Home() {
               {(["Genel Bilgiler", "Notlar", "Talepler", "Görevler", "Mesajlar", "Zaman Çizelgesi"] as const).map((tab) => (
                 <button
                   key={tab}
-                  className={clsx("h-9 rounded-md border px-3 text-sm transition", memberDetailTab === tab ? "border-mint/40 bg-mint/10 text-mint" : "border-line bg-panelSoft text-slate-400 hover:text-white")}
+                  className={clsx("h-9 rounded-md border px-3 text-sm transition", memberDetailTab === tab ? "border-gold/40 bg-gold/10 text-gold" : "border-line bg-panelSoft text-slate-400 hover:text-white")}
                   onClick={() => setMemberDetailTab(tab)}
                 >
                   {tab}
@@ -3498,7 +3500,7 @@ export default function Home() {
                     {(["Tümü", "Mesajlar", "Sesli Yanıtlar", "Görevler", "Talepler", "Notlar", "Üye İşlemleri"] as const).map((filter) => (
                       <button
                         key={filter}
-                        className={clsx("h-8 rounded-md border px-2 text-xs transition", timelineFilter === filter ? "border-mint/40 bg-mint/10 text-mint" : "border-line bg-panelSoft text-slate-400 hover:text-white")}
+                        className={clsx("h-8 rounded-md border px-2 text-xs transition", timelineFilter === filter ? "border-gold/40 bg-gold/10 text-gold" : "border-line bg-panelSoft text-slate-400 hover:text-white")}
                         onClick={() => setTimelineFilter(filter)}
                       >
                         {filter}
@@ -3516,7 +3518,7 @@ export default function Home() {
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/75 p-4">
           <section className="w-full max-w-md rounded-lg border border-mint/30 bg-panel p-6 text-center shadow-glow">
             <CalendarClock className="mx-auto text-mint" size={34} />
-            <h2 className="mt-4 text-xl font-bold text-white">Alarm Zamanı</h2>
+            <h2 className="mt-4 text-xl font-bold text-[#F4F1EA]">Alarm Zamanı</h2>
             <p className="mt-3 rounded-md border border-line bg-panelSoft p-4 text-sm leading-6 text-slate-200">{activeAlarm.note}</p>
             <p className="mt-3 text-xs text-slate-500">{formatDate(activeAlarm.scheduledAt)}</p>
             <div className="mt-5 flex flex-wrap justify-center gap-2">
@@ -3544,15 +3546,15 @@ export default function Home() {
               <div className="border-b border-line bg-panel/80 p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-mint">Operation Pact</p>
-                    <h2 className="mt-1 text-xl font-bold text-white">WhatsApp Connection</h2>
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold">Operation Pact</p>
+                    <h2 className="mt-1 text-xl font-bold text-[#F4F1EA]">WhatsApp Connection</h2>
                   </div>
                   <button className="btn btn-secondary h-9 px-3 text-xs" onClick={() => setWhatsAppQrModal(null)}>Kapat</button>
                 </div>
               </div>
               <div className="p-6">
                 <div className="relative mx-auto flex aspect-square max-w-[320px] items-center justify-center rounded-xl border border-line bg-white p-4">
-                  <span className="absolute left-3 top-3 rounded-full border border-mint/40 bg-ink px-2 py-1 text-[10px] font-bold text-mint">OP</span>
+                  <span className="absolute left-3 top-3 rounded-full border border-gold/40 bg-ink px-2 py-1 text-[10px] font-bold text-gold">OP</span>
                   {whatsAppQrImage ? (
                     <img src={whatsAppQrImage} alt="WhatsApp bağlantı QR kodu" className="h-full w-full object-contain" />
                   ) : (
@@ -3720,7 +3722,7 @@ function PastTaskArchive({
         {(["Bugün", "Dün", "Son 7 Gün", "Son 30 Gün", "Tarih Aralığı Seç"] as const).map((item) => (
           <button
             key={item}
-            className={clsx("h-9 rounded-md border px-3 text-sm transition", filter === item ? "border-mint/40 bg-mint/10 text-mint" : "border-line bg-panelSoft text-slate-400 hover:text-white")}
+            className={clsx("h-9 rounded-md border px-3 text-sm transition", filter === item ? "border-gold/40 bg-gold/10 text-gold" : "border-line bg-panelSoft text-slate-400 hover:text-white")}
             onClick={() => onFilterChange(item)}
           >
             {item}
@@ -3780,7 +3782,7 @@ function PastTaskArchive({
               return (
                 <tr key={task.id} className="border-t border-line align-middle">
                   <td className="p-3">
-                    <button className="max-w-[180px] truncate text-left font-semibold text-white hover:text-mint" onClick={() => onOpenDetail(task.contactId, dateKey(task.taskDate))}>
+                    <button className="max-w-[180px] truncate text-left font-semibold text-white hover:text-gold" onClick={() => onOpenDetail(task.contactId, dateKey(task.taskDate))}>
                       {task.title}
                     </button>
                   </td>
@@ -3981,9 +3983,9 @@ function SystemGuidePage({
       <div className="rounded-lg border border-line bg-panel p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase text-mint">Yaşayan Dokümantasyon</p>
+            <p className="text-xs font-semibold uppercase text-gold">Yaşayan Dokümantasyon</p>
             <h2 className="mt-2 text-2xl font-bold text-white">Sistem Kılavuzu</h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">Panel geliştikçe modüller, yetkiler, iş akışları, API yapıları ve veri mimarisi burada güncel tutulur. Yeni özellik dokümante edilmeden sprint tamamlanmış kabul edilmez.</p>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-[#9CA8A8]">Panel geliştikçe modüller, yetkiler, iş akışları, API yapıları ve veri mimarisi burada güncel tutulur. Yeni özellik dokümante edilmeden sprint tamamlanmış kabul edilmez.</p>
           </div>
           <span className={clsx("status-pill", canEdit ? statusTone.Aktif : statusTone.Pasif)}>
             {canEdit ? "Developer/Admin düzenleyebilir" : "Salt okunur"}
@@ -4005,7 +4007,7 @@ function SystemGuidePage({
           <div className="rounded-md border border-mint/20 bg-mint/10 p-4">
             <div className="flex items-center justify-between gap-3">
               <p className="font-semibold text-white">Son Güncelleme</p>
-              <span className="text-xs text-mint">{systemGuideLastUpdate.date}</span>
+              <span className="text-xs text-gold">{systemGuideLastUpdate.date}</span>
             </div>
             <p className="mt-1 text-sm text-slate-300">{systemGuideLastUpdate.sprint}</p>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -4039,7 +4041,7 @@ function SystemGuidePage({
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <h4 className="font-semibold text-white">{section.title}</h4>
-                      <p className="mt-2 text-sm leading-6 text-slate-400">{section.summary}</p>
+                      <p className="mt-2 text-sm leading-6 text-[#9CA8A8]">{section.summary}</p>
                     </div>
                     <span className="status-pill border-sky-400/30 bg-sky-400/10 text-sky-200">{section.sprint}</span>
                   </div>
@@ -4064,7 +4066,7 @@ function SystemGuidePage({
                     </div>
                     <div>
                       <p className="text-xs font-semibold uppercase text-slate-500">Dikkat noktaları</p>
-                      <ul className="mt-2 space-y-1 text-sm leading-6 text-slate-400">
+                      <ul className="mt-2 space-y-1 text-sm leading-6 text-[#9CA8A8]">
                         {section.cautions.map((caution) => (
                           <li key={caution}>• {caution}</li>
                         ))}
@@ -4309,18 +4311,31 @@ function buildRecentContactActivities(
 
 function OperationPactHome({ user, onOpen }: { user: SessionUser; onOpen: (active: ActiveMenu) => void }) {
   return (
-    <section className="space-y-6">
-      <div className="relative overflow-hidden rounded-lg border border-line bg-[radial-gradient(circle_at_top_left,rgba(51,214,159,0.18),transparent_34%),linear-gradient(135deg,rgba(12,28,31,0.98),rgba(5,12,14,0.98))] p-6 shadow-glow md:p-8">
-        <div className="max-w-3xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.32em] text-mint">Operation Pact Core</p>
-          <h1 className="mt-4 text-3xl font-bold text-white md:text-5xl">Enterprise Operations Command Center</h1>
-          <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-300 md:text-base">
-            Communications, customer relations, operations, executive control, marketplace services and AI operations will live under one modular platform shell.
-          </p>
-          <div className="mt-6 flex flex-wrap items-center gap-2 text-xs text-slate-400">
-            <span className="rounded-full border border-mint/30 bg-mint/10 px-3 py-1 text-mint">Signed in: {user.name}</span>
-            <span className="rounded-full border border-line bg-panelSoft px-3 py-1">Role: {user.role}</span>
-            <span className="rounded-full border border-line bg-panelSoft px-3 py-1">Core shell v1</span>
+    <section className="flex flex-1 flex-col gap-6 pb-8">
+      <div className="relative overflow-hidden rounded-xl border border-line/80 bg-[linear-gradient(135deg,rgba(11,23,24,0.94),rgba(7,17,19,0.92)_52%,rgba(5,8,10,0.96))] p-6 shadow-[0_22px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(244,241,234,0.05)] md:p-8 lg:p-10">
+        <div className="pointer-events-none absolute inset-0 opacity-[0.08] [background-image:linear-gradient(90deg,rgba(200,164,93,0.8)_1px,transparent_1px),linear-gradient(rgba(200,164,93,0.8)_1px,transparent_1px)] [background-size:72px_72px]" />
+        <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full border border-gold/10 bg-gold/[0.035] blur-2xl" />
+        <div className="pointer-events-none absolute bottom-0 left-0 h-px w-full bg-gradient-to-r from-gold/35 via-mint/20 to-transparent" />
+        <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-end">
+          <div className="max-w-4xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/[0.07] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-gold">
+              <span className="h-1.5 w-1.5 rounded-full bg-mint shadow-[0_0_14px_rgba(75,168,143,0.45)]" />
+              Operation Pact Core
+            </div>
+            <h1 className="mt-6 max-w-4xl text-4xl font-semibold leading-[0.96] tracking-[-0.02em] text-[#F4F1EA] md:text-6xl lg:text-7xl">
+              Executive command center for modern operations.
+            </h1>
+            <p className="mt-6 max-w-2xl text-sm leading-7 text-[#B8C0BA] md:text-base">
+              Communications, customer relations, operational workflows, executive reporting, marketplace services and AI automation in one controlled enterprise shell.
+            </p>
+          </div>
+          <div className="rounded-lg border border-line/80 bg-[#071113]/70 p-4 shadow-[inset_0_1px_0_rgba(244,241,234,0.04)]">
+            <div className="grid grid-cols-2 gap-2">
+              <HomeBadge label="Signed in" value={user.name} tone="gold" />
+              <HomeBadge label="Role" value={user.role} />
+              <HomeBadge label="Shell" value="Core v1" />
+              <HomeBadge label="Mode" value="Command" tone="teal" />
+            </div>
           </div>
         </div>
       </div>
@@ -4329,19 +4344,19 @@ function OperationPactHome({ user, onOpen }: { user: SessionUser; onOpen: (activ
         {operationPactModules.map((module) => {
           const Icon = module.icon;
           return (
-            <article key={module.key} className="group flex min-h-[260px] flex-col justify-between rounded-lg border border-line bg-panel p-5 transition hover:-translate-y-0.5 hover:border-mint/45 hover:shadow-glow">
+            <article key={module.key} className="group flex min-h-[248px] flex-col justify-between rounded-xl border border-line/80 bg-[linear-gradient(180deg,rgba(14,31,32,0.76),rgba(9,18,19,0.82))] p-5 shadow-[0_18px_55px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(244,241,234,0.035)] transition duration-300 hover:border-gold/40 hover:shadow-[0_22px_70px_rgba(0,0,0,0.26),0_0_0_1px_rgba(200,164,93,0.08)]">
               <div>
                 <div className="flex items-start justify-between gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-md border border-mint/20 bg-mint/10 text-mint">
-                    <Icon size={24} />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-gold/20 bg-[#0B1718] text-gold shadow-[inset_0_1px_0_rgba(244,241,234,0.05)] transition duration-300 group-hover:border-gold/45 group-hover:bg-gold/[0.08] group-hover:text-[#D9BE82]">
+                    <Icon size={23} />
                   </div>
-                  <span className="rounded-full border border-line bg-panelSoft px-2.5 py-1 text-[11px] font-semibold text-slate-400">Department</span>
+                  <span className="rounded-full border border-line bg-[#071113]/70 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-[#9CA8A8] transition group-hover:border-gold/25 group-hover:text-[#C8B98F]">Department</span>
                 </div>
-                <h2 className="mt-5 text-xl font-bold text-white">{module.title}</h2>
-                <p className="mt-3 text-sm leading-6 text-slate-400">{module.description}</p>
+                <h2 className="mt-6 text-xl font-semibold tracking-[-0.01em] text-[#F4F1EA]">{module.title}</h2>
+                <p className="mt-3 text-sm leading-6 text-[#9CA8A8]">{module.description}</p>
               </div>
-              <button className="btn btn-primary mt-6 w-full justify-center" onClick={() => onOpen(module.target as ActiveMenu)}>
-                Open Department <ArrowRight size={16} />
+              <button className="mt-7 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-gold/35 bg-gold/[0.08] px-4 text-sm font-semibold text-[#E7D6A6] transition duration-300 hover:border-gold/60 hover:bg-gold/[0.14] hover:text-[#F4E6C1] focus:outline-none focus:ring-2 focus:ring-gold/25" onClick={() => onOpen(module.target as ActiveMenu)}>
+                Open Department <ArrowRight size={16} className="transition group-hover:translate-x-0.5" />
               </button>
             </article>
           );
@@ -4351,18 +4366,26 @@ function OperationPactHome({ user, onOpen }: { user: SessionUser; onOpen: (activ
   );
 }
 
+function HomeBadge({ label, value, tone }: { label: string; value: string; tone?: "gold" | "teal" }) {
+  return (
+    <div className={clsx("rounded-md border bg-[#0B1718]/80 px-3 py-2", tone === "gold" ? "border-gold/25" : tone === "teal" ? "border-mint/20" : "border-line")}>
+      <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-[#6F7C7C]">{label}</p>
+      <p className={clsx("mt-1 truncate text-xs font-semibold", tone === "gold" ? "text-gold" : tone === "teal" ? "text-mint" : "text-[#D8D4CA]")}>{value}</p>
+    </div>
+  );
+}
 function DepartmentPlaceholder({ active, onLogout }: { active: ActiveMenu; onLogout: () => void }) {
   const module = operationPactModules.find((item) => item.key === active);
   const Icon = module?.icon ?? Building2;
   return (
     <section className="flex min-h-[calc(100vh-9rem)] items-center justify-center rounded-lg border border-line bg-panel p-6">
       <div className="max-w-xl text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-md border border-mint/25 bg-mint/10 text-mint">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-md border border-gold/25 bg-gold/10 text-gold">
           <Icon size={30} />
         </div>
-        <p className="mt-6 text-xs font-semibold uppercase tracking-[0.28em] text-mint">Coming Soon</p>
+        <p className="mt-6 text-xs font-semibold uppercase tracking-[0.28em] text-gold">Coming Soon</p>
         <h1 className="mt-3 text-3xl font-bold text-white">{module?.title ?? active}</h1>
-        <p className="mt-3 text-sm leading-6 text-slate-400">{module?.description ?? "This department placeholder is reserved for a future Operation Pact module."}</p>
+        <p className="mt-3 text-sm leading-6 text-[#9CA8A8]">{module?.description ?? "This department placeholder is reserved for a future Operation Pact module."}</p>
         <button className="btn btn-secondary mx-auto mt-6" onClick={onLogout}>Çıkış Yap</button>
       </div>
     </section>
@@ -6008,3 +6031,4 @@ function dateKey(value: string) {
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
   return dateInputValue(new Date(value));
 }
+

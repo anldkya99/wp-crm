@@ -12,8 +12,8 @@
 
 body {
   margin: 0;
-  background: #071113;
-  color: #e8f3ef;
+  background: #05080A;
+  color: #F4F1EA;
 }
 
 button,
@@ -29,20 +29,20 @@ textarea {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #274144;
+  background: #1C3434;
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0d191c;
+  background: #071113;
 }
 
 .field {
-  @apply w-full rounded-md border border-line bg-panelSoft px-3 py-2 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-mint;
+  @apply w-full rounded-md border border-line bg-panelSoft px-3 py-2 text-sm text-[#F4F1EA] outline-none transition placeholder:text-[#687575] focus:border-gold;
 }
 
 .label {
-  @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-400;
+  @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-[#9CA8A8];
 }
 
 .btn {
@@ -54,9 +54,10 @@ textarea {
 }
 
 .btn-secondary {
-  @apply border border-line bg-panelSoft text-slate-100 hover:border-slate-500;
+  @apply border border-line bg-panelSoft text-[#F4F1EA] hover:border-gold/40 hover:bg-[#132728];
 }
 
 .status-pill {
   @apply inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold;
 }
+

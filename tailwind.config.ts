@@ -5,16 +5,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#071113",
-        panel: "#0d191c",
-        panelSoft: "#122326",
-        line: "#203337",
-        mint: "#35d29a",
-        amber: "#f4b85a",
+        ink: "#05080A",
+        panel: "#0B1718",
+        panelSoft: "#0E1F20",
+        line: "#1C3434",
+        mint: "#4BA88F",
+        gold: "#C8A45D",
+        amber: "#C8A45D",
         coral: "#f06f64"
       },
       boxShadow: {
-        glow: "0 0 0 1px rgba(53, 210, 154, 0.18), 0 24px 70px rgba(0, 0, 0, 0.35)"
+        glow: "0 0 0 1px rgba(200, 164, 93, 0.16), 0 24px 70px rgba(0, 0, 0, 0.42)"
       }
     }
   },
