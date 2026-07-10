@@ -1517,12 +1517,13 @@ export default function Home() {
 
   if (!user) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top_left,#143034,#071113_42%)] p-6">
-        <section className="w-full max-w-md rounded-lg border border-line bg-panel p-6 shadow-glow">
-          <div className="mb-8">
-            <p className="text-sm font-semibold text-mint">Tek Numara Operasyon</p>
-            <h1 className="mt-2 text-2xl font-bold text-white">WhatsApp Panel Girişi</h1>
-            <p className="mt-2 text-sm text-slate-400">Kullanıcı doğrulaması users tablosundan yapılır.</p>
+      <main className="bg-op-grid flex min-h-screen items-center justify-center p-6">
+        <section className="surface-glass shadow-op-lg w-full max-w-md rounded-xl p-6">
+          <div className="mb-8 text-center">
+            <p className="text-xs font-medium uppercase tracking-[0.34em] text-[#9CA8A8]">Operation Pact</p>
+            <h1 className="mt-3 text-3xl font-bold tracking-wide text-[#F4F1EA]">OP Login</h1>
+            <p className="mt-3 text-sm text-[#9CA8A8]">Secure Enterprise Access</p>
+            <div className="mx-auto mt-5 h-px w-32 bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
           </div>
           <form className="space-y-4" onSubmit={login}>
             <label>
@@ -1534,7 +1535,7 @@ export default function Home() {
               <input className="field" type="password" value={loginForm.password} onChange={(event) => setLoginForm({ ...loginForm, password: event.target.value })} required />
             </label>
             {loginError && <p className="rounded-md border border-coral/30 bg-coral/10 p-3 text-sm text-red-200">{loginError}</p>}
-            <button className="btn btn-primary w-full" type="submit">
+            <button className="btn-op-primary w-full" type="submit">
               <UserRound size={17} /> Panele Gir
             </button>
           </form>
@@ -1545,7 +1546,7 @@ export default function Home() {
 
   if (active === "Operation Pact Home") {
     return (
-      <main className="relative min-h-screen overflow-y-auto bg-[#05080A] text-[#F4F1EA]">
+      <main className="bg-op-grid relative min-h-screen overflow-y-auto text-[#F4F1EA]">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(200,164,93,0.12),transparent_32%),radial-gradient(circle_at_82%_18%,rgba(75,168,143,0.08),transparent_28%),linear-gradient(135deg,#05080A,#071113_58%,#05080A)]" />
         <div className="pointer-events-none absolute inset-0 opacity-[0.055] [background-image:linear-gradient(rgba(244,241,234,0.9)_1px,transparent_1px),linear-gradient(90deg,rgba(244,241,234,0.9)_1px,transparent_1px)] [background-size:48px_48px]" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
@@ -1566,14 +1567,14 @@ export default function Home() {
   }
   if (isDepartmentPlaceholder(active)) {
     return (
-      <main className="min-h-screen overflow-y-auto bg-[radial-gradient(circle_at_top_left,rgba(200,164,93,0.12),transparent_32%),linear-gradient(135deg,#05080A,#071113)] p-4 text-[#F4F1EA] md:p-8">
+      <main className="bg-op-grid min-h-screen overflow-y-auto p-4 text-[#F4F1EA] md:p-8">
         <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl flex-col">
           <header className="mb-6 flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-medium leading-none text-[#9CA8A8]">Operation</p>
               <p className="mt-1 text-3xl font-bold leading-none tracking-wide text-[#F4F1EA]">Pact</p>
             </div>
-            <button className="btn btn-secondary" onClick={logout}>
+            <button className="btn-op-secondary" onClick={logout}>
               <LogOut size={17} /> Çıkış
             </button>
           </header>
@@ -1584,13 +1585,13 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen bg-ink text-slate-100">
-      <aside className="relative hidden h-screen w-72 shrink-0 flex-col border-r border-line bg-panel p-4 lg:flex">
-        <div className="mb-8 flex min-h-[108px] flex-col items-center justify-center rounded-md border border-line bg-panelSoft p-4 text-center">
+    <main className="bg-op-grid flex min-h-screen text-[#F4F1EA]">
+      <aside className="surface-glass relative hidden h-screen w-72 shrink-0 flex-col border-r p-4 lg:flex">
+        <div className="op-card mb-8 flex min-h-[108px] flex-col items-center justify-center p-4 text-center">
           <p className="text-sm font-medium leading-none text-[#9CA8A8]">Operation</p>
           <p className="mt-1 text-3xl font-bold leading-none tracking-wide text-[#F4F1EA]">Pact</p>
-          <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-mint/25 bg-mint/10 px-3 py-1 text-[11px] font-medium text-mint">
-            <span className="h-1.5 w-1.5 rounded-full bg-mint shadow-[0_0_10px_rgba(51,214,159,0.75)]" />
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-gold/25 bg-[#071113]/80 px-3 py-1 text-[11px] font-medium text-[#D8D4CA] shadow-op-xs">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#4BA88F] shadow-[0_0_8px_rgba(75,168,143,0.55)]" />
             <span>WhatsApp Engine v1.1</span>
           </div>
         </div>
@@ -1600,7 +1601,7 @@ export default function Home() {
             return (
               <div key={item.key}>
                 <button
-                  className={clsx("flex h-11 w-full items-center gap-3 rounded-md px-3 text-left text-sm font-medium transition", active === item.key ? "bg-gold text-ink" : "text-slate-300 hover:bg-panelSoft hover:text-white")}
+                  className={clsx("flex h-11 w-full items-center gap-3 rounded-md px-3 text-left text-sm font-medium transition", active === item.key ? "bg-gold text-ink shadow-op-xs" : "text-[#C6CECE] hover:border-gold/20 hover:bg-[#0E1F20]/80 hover:text-white")}
                   onClick={() => {
                     setActive(item.key);
                     if (item.key === "Mesajlar") setMessageSubMenu("Tüm Mesajlar");
@@ -1645,7 +1646,7 @@ export default function Home() {
           <Bell size={18} />
           <span className="min-w-0 flex-1">Görev Asistanı</span>
           {guidanceTasks.length > 0 && (
-            <span className="rounded-full border border-mint/40 bg-mint/10 px-2 py-0.5 text-xs text-mint">{guidanceTasks.length}</span>
+            <span className="rounded-full border border-gold/35 bg-gold/10 px-2 py-0.5 text-xs text-gold">{guidanceTasks.length}</span>
           )}
         </button>
       </div>
@@ -1657,7 +1658,7 @@ export default function Home() {
                 <h3 className="font-semibold text-white">Hazır Görevler</h3>
                 <p className="mt-1 text-xs text-slate-400">Operatör onayı bekleyen yönlendirmeler</p>
               </div>
-              <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => setTaskAssistantOpen(false)}>Kapat</button>
+              <button className="btn-op-secondary h-8 px-2 text-xs" onClick={() => setTaskAssistantOpen(false)}>Kapat</button>
             </div>
           </div>
           <div className="max-h-[calc(100vh-12rem)] space-y-3 overflow-y-auto p-3">
@@ -1679,9 +1680,9 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <button className="btn btn-primary h-8 px-3 text-xs" onClick={() => void guideAssistantTask(task)}>Yönlendir</button>
-                  <button className="btn btn-secondary h-8 px-3 text-xs" onClick={() => void completeAssistantTask(task)}>Tamamlandı</button>
-                  <button className="btn btn-secondary h-8 px-3 text-xs" onClick={() => void ignoreAssistantTask(task)}>Yoksay</button>
+                  <button className="btn-op-primary h-8 px-3 text-xs" onClick={() => void guideAssistantTask(task)}>Yönlendir</button>
+                  <button className="btn-op-secondary h-8 px-3 text-xs" onClick={() => void completeAssistantTask(task)}>Tamamlandı</button>
+                  <button className="btn-op-secondary h-8 px-3 text-xs" onClick={() => void ignoreAssistantTask(task)}>Yoksay</button>
                 </div>
               </article>
             ))}
@@ -1693,7 +1694,7 @@ export default function Home() {
       )}
 
       <section className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-16 items-center justify-between border-b border-line bg-panel/85 px-4 backdrop-blur md:px-6">
+        <header className="surface-glass flex h-16 items-center justify-between border-b px-4 shadow-op-xs md:px-6">
           <div>
             <h2 className="text-lg font-bold text-white">{active}</h2>
             <p className="text-xs text-slate-400">{user.name} · {user.role}</p>
@@ -1733,15 +1734,15 @@ export default function Home() {
             </div>
           )}
           <div className="flex items-center gap-2">
-            <span className={clsx("inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold", activeLine && (activeLine.connectionStatus === "connected" || canSendWithLineStatus(activeLine.status)) ? "border-mint/30 bg-mint/10 text-mint" : "border-coral/30 bg-coral/10 text-red-200")}>
+            <span className={clsx("inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold", activeLine && (activeLine.connectionStatus === "connected" || canSendWithLineStatus(activeLine.status)) ? "border-[#4BA88F]/30 bg-[#4BA88F]/10 text-[#78C7AE]" : "border-coral/30 bg-coral/10 text-red-200")}>
               {activeLine && <span className={clsx("h-2 w-2 rounded-full", activeLine.connectionStatus === "connected" ? "bg-mint" : "bg-coral")} />}
               {activeLine ? `${lineShortName(activeLine)} · ${lineConnectionStatusLabel(activeLine.connectionStatus)}` : "Hat yok"}
             </span>
-            <button className="btn btn-secondary" onClick={() => void loadData()} disabled={loading}>
+            <button className="btn-op-secondary" onClick={() => void loadData()} disabled={loading}>
               <RefreshCw size={17} /> Yenile
             </button>
             <button
-              className="btn btn-secondary"
+              className="btn-op-secondary"
               onClick={logout}
             >
               <LogOut size={17} /> Çıkış
@@ -1773,7 +1774,7 @@ export default function Home() {
                 <button className="rounded-lg border border-line bg-panel p-4 text-left transition hover:border-slate-500" onClick={() => setAlarmCenterOpen(true)}>
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-md bg-panelSoft text-mint"><Clock3 size={20} /></div>
+                      <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[#0E1F20] text-gold"><Clock3 size={20} /></div>
                       <div>
                         <p className="font-semibold text-white">Tarih / Saat</p>
                         <p className="mt-1 text-sm text-slate-400">{formatShortDate(now)}</p>
@@ -1886,9 +1887,9 @@ export default function Home() {
                   </label>
                 </div>
                 <div className="mt-5 flex flex-wrap gap-2">
-                  <button className="btn btn-primary" onClick={() => void saveRequest(false)}><Save size={17} /> Talep Kaydet</button>
-                  <button className="btn btn-secondary" onClick={() => void saveRequest(true)}><MessageCircle size={17} /> Mesaj Oluştur</button>
-                  <button className="btn btn-secondary" onClick={previewRequestMessage}><Search size={17} /> Mesaj Önizle</button>
+                  <button className="btn-op-primary" onClick={() => void saveRequest(false)}><Save size={17} /> Talep Kaydet</button>
+                  <button className="btn-op-secondary" onClick={() => void saveRequest(true)}><MessageCircle size={17} /> Mesaj Oluştur</button>
+                  <button className="btn-op-secondary" onClick={previewRequestMessage}><Search size={17} /> Mesaj Önizle</button>
                 </div>
                 <div className="mt-5 rounded-lg border border-line bg-ink/40 p-4">
                   <h3 className="font-semibold text-white">Komut / Mesaj Önizleme</h3>
@@ -1951,7 +1952,7 @@ export default function Home() {
                             key={contact.id}
                             className={clsx(
                               "w-full rounded-md border border-line bg-ink/35 px-3 py-2 transition hover:border-slate-500 hover:bg-panelSoft",
-                              selectedContact?.id === contact.id && "border-mint/40 bg-panelSoft"
+                              selectedContact?.id === contact.id && "border-gold/45 bg-[#132728] shadow-op-xs"
                             )}
                           >
                             <button
@@ -1992,7 +1993,7 @@ export default function Home() {
                       {selectedConversation?.isMuted && <VolumeX className="text-slate-500" size={16} />}
                       {selectedConversation ? <span className={clsx("status-pill", statusTone[selectedConversation.status])}>{selectedConversation.status}</span> : <span className="status-pill border-slate-500/40 bg-slate-500/10 text-slate-300">Konuşma yok</span>}
                       {selectedConversation && (
-                        <button className="btn btn-secondary h-9 w-9 px-0" onClick={() => setConversationMenuOpen((open) => !open)} aria-label="Sohbet işlemleri">
+                        <button className="btn-op-secondary h-9 w-9 px-0" onClick={() => setConversationMenuOpen((open) => !open)} aria-label="Sohbet işlemleri">
                           <MoreVertical size={17} />
                         </button>
                       )}
@@ -2029,7 +2030,7 @@ export default function Home() {
                       </div>
                     ) : (
                       <div key={item.message.id} className={clsx("flex", item.message.senderType === "operator" ? "justify-end" : "justify-start")}>
-                        <div className={clsx("max-w-[78%] rounded-lg border px-4 py-3 text-sm leading-6", item.message.senderType === "operator" ? "border-mint/25 bg-emerald-500/15 text-emerald-50" : item.message.senderType === "system" ? "border-line bg-panelSoft text-slate-400" : "border-line bg-panel text-slate-100")}>
+                        <div className={clsx("max-w-[78%] rounded-lg border px-4 py-3 text-sm leading-6", item.message.senderType === "operator" ? "border-gold/25 bg-gold/10 text-[#F4F1EA]" : item.message.senderType === "system" ? "border-line bg-panelSoft text-slate-400" : "border-line bg-panel text-slate-100")}>
                           {isVoiceMessage(item.message.messageText) ? (
                             <VoiceBubble messageText={item.message.messageText} />
                           ) : (
@@ -2065,7 +2066,7 @@ export default function Home() {
                     )}
                     <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
                       {data.templates.filter((template) => template.isActive && template.isPinned).map((template) => (
-                        <button key={template.id} className="btn btn-secondary h-9" onClick={() => insertTemplate(template)}>
+                        <button key={template.id} className="btn-op-secondary h-9" onClick={() => insertTemplate(template)}>
                           {template.title}
                         </button>
                       ))}
@@ -2088,8 +2089,8 @@ export default function Home() {
                         }}
                         placeholder="Mesaj yazın veya # ile hazır cevap ara"
                       />
-                      <button className="btn btn-primary h-auto" onClick={() => void sendMessage()} disabled={!selectedContact || !activeLine || !canSendWithLineStatus(activeLine.status)}><Send size={18} /> Gönder</button>
-                      <button className="btn btn-secondary h-auto" onClick={() => {
+                      <button className="btn-op-primary h-auto" onClick={() => void sendMessage()} disabled={!selectedContact || !activeLine || !canSendWithLineStatus(activeLine.status)}><Send size={18} /> Gönder</button>
+                      <button className="btn-op-secondary h-auto" onClick={() => {
                         setVoiceModalOpen(true);
                         setVoiceDraft(draft || "");
                         setVoiceAudioUrl("");
@@ -2136,11 +2137,11 @@ export default function Home() {
                   </label>
                 </div>
                 <div className="mt-5 flex flex-wrap gap-2">
-                  <button className="btn btn-primary" onClick={() => void saveContact()}>
+                  <button className="btn-op-primary" onClick={() => void saveContact()}>
                     <Save size={17} /> {editingContactId ? "Güncelle" : "Numara Kaydet"}
                   </button>
                   {editingContactId && (
-                    <button className="btn btn-secondary" onClick={cancelContactEdit}>Vazgeç</button>
+                    <button className="btn-op-secondary" onClick={cancelContactEdit}>Vazgeç</button>
                   )}
                 </div>
                 <OwnershipConflictPanel
@@ -2184,8 +2185,8 @@ export default function Home() {
                       <p className="text-slate-400">{contact.gender}</p>
                       <p className="truncate text-slate-500">{contact.note || "-"}</p>
                       <div className="flex justify-end gap-2">
-                        <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => editContact(contact)}>Düzenle</button>
-                        <button className="btn btn-secondary h-8 px-2 text-xs text-rose-200 hover:border-rose-500/60 hover:text-rose-100" onClick={() => void deleteContact(contact)}>Sil</button>
+                        <button className="btn-op-secondary h-8 px-2 text-xs" onClick={() => editContact(contact)}>Düzenle</button>
+                        <button className="btn-op-secondary h-8 px-2 text-xs text-rose-200 hover:border-rose-500/60 hover:text-rose-100" onClick={() => void deleteContact(contact)}>Sil</button>
                       </div>
                     </article>
                   ))}
@@ -2214,8 +2215,8 @@ export default function Home() {
                         <p className="text-slate-400">{formatDate(conversation.lastMessageAt)}</p>
                         <span className={clsx("status-pill w-fit", statusTone[conversation.status])}>{conversation.status}</span>
                         <div className="flex justify-end gap-2">
-                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => setArchiveDetailId(conversation.id)}>Detay Gör</button>
-                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void setConversationArchived(conversation.id, false)}>Geri Al</button>
+                          <button className="btn-op-secondary h-8 px-2 text-xs" onClick={() => setArchiveDetailId(conversation.id)}>Detay Gör</button>
+                          <button className="btn-op-secondary h-8 px-2 text-xs" onClick={() => void setConversationArchived(conversation.id, false)}>Geri Al</button>
                         </div>
                       </article>
                     );
@@ -2234,7 +2235,7 @@ export default function Home() {
                     <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-3">
                       {archiveDetailMessages.map((message) => (
                         <div key={message.id} className={clsx("flex", message.senderType === "operator" ? "justify-end" : "justify-start")}>
-                          <div className={clsx("max-w-[88%] rounded-lg border px-3 py-2 text-sm leading-6", message.senderType === "operator" ? "border-mint/25 bg-emerald-500/15 text-emerald-50" : message.senderType === "system" ? "border-line bg-panelSoft text-slate-400" : "border-line bg-panel text-slate-100")}>
+                          <div className={clsx("max-w-[88%] rounded-lg border px-3 py-2 text-sm leading-6", message.senderType === "operator" ? "border-gold/25 bg-gold/10 text-[#F4F1EA]" : message.senderType === "system" ? "border-line bg-panelSoft text-slate-400" : "border-line bg-panel text-slate-100")}>
                             <p>{message.messageText}</p>
                             <p className="mt-2 text-right text-[11px] text-slate-500">{formatDate(message.createdAt)}</p>
                           </div>
@@ -2267,10 +2268,10 @@ export default function Home() {
                   </label>
                 </div>
                 <div className="mt-5 flex flex-wrap gap-2">
-                  <button className="btn btn-primary" onClick={() => void saveContact()}>
+                  <button className="btn-op-primary" onClick={() => void saveContact()}>
                     <Save size={17} /> {editingContactId ? "Üye Güncelle" : "Üye Kaydet"}
                   </button>
-                  {editingContactId && <button className="btn btn-secondary" onClick={cancelContactEdit}>Vazgeç</button>}
+                  {editingContactId && <button className="btn-op-secondary" onClick={cancelContactEdit}>Vazgeç</button>}
                 </div>
                 <OwnershipConflictPanel
                   conflict={ownershipConflict}
@@ -2313,9 +2314,9 @@ export default function Home() {
                             <td className="text-slate-400">{lastConversationAt.getTime() > 0 ? formatDate(lastConversationAt.toISOString()) : "-"}</td>
                             <td className="p-3">
                               <div className="flex justify-end gap-2">
-                                <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => setMemberDetailId(contact.id)}>Detay</button>
-                                <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => editContact(contact)}>Düzenle</button>
-                                <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void toggleMemberStatus(contact)}>
+                                <button className="btn-op-secondary h-8 px-2 text-xs" onClick={() => setMemberDetailId(contact.id)}>Detay</button>
+                                <button className="btn-op-secondary h-8 px-2 text-xs" onClick={() => editContact(contact)}>Düzenle</button>
+                                <button className="btn-op-secondary h-8 px-2 text-xs" onClick={() => void toggleMemberStatus(contact)}>
                                   {contact.memberStatus === "Pasif" ? "Aktifleştir" : "Pasifleştir"}
                                 </button>
                               </div>
@@ -2350,12 +2351,12 @@ export default function Home() {
                   Sabitle
                 </label>
                 <div className="mt-5 flex flex-wrap gap-2">
-                  <button className="btn btn-primary" onClick={() => void addTemplate()}>
+                  <button className="btn-op-primary" onClick={() => void addTemplate()}>
                     {editingTemplateId ? <Save size={17} /> : <Plus size={17} />}
                     {editingTemplateId ? "Şablon Güncelle" : "Şablon Ekle"}
                   </button>
                   {editingTemplateId && (
-                    <button className="btn btn-secondary" onClick={cancelTemplateEdit}>
+                    <button className="btn-op-secondary" onClick={cancelTemplateEdit}>
                       Vazgeç
                     </button>
                   )}
@@ -2375,13 +2376,13 @@ export default function Home() {
                         <span className={clsx("status-pill", template.isPinned ? statusTone.Yeni : statusTone.Pasif)}>{template.isPinned ? "Sabit" : "Sabit değil"}</span>
                       </div>
                       <div className="flex flex-wrap justify-end gap-2">
-                        <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => editTemplate(template)}>
+                        <button className="btn-op-secondary h-8 px-2 text-xs" onClick={() => editTemplate(template)}>
                           <Pencil size={14} /> Düzenle
                         </button>
-                        <button className="btn btn-secondary h-8 px-2 text-xs text-rose-200 hover:border-rose-500/60 hover:text-rose-100" onClick={() => void deleteTemplate(template)}>
+                        <button className="btn-op-secondary h-8 px-2 text-xs text-rose-200 hover:border-rose-500/60 hover:text-rose-100" onClick={() => void deleteTemplate(template)}>
                           <Trash2 size={14} /> Sil
                         </button>
-                        <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void toggleTemplatePin(template)}>
+                        <button className="btn-op-secondary h-8 px-2 text-xs" onClick={() => void toggleTemplatePin(template)}>
                           {template.isPinned ? "Sabitten çıkar" : "Sabitle"}
                         </button>
                       </div>
@@ -2427,8 +2428,8 @@ export default function Home() {
                   </label>
                 </div>
                 <div className="mt-5 flex flex-wrap gap-2">
-                  <button className="btn btn-primary" onClick={() => void saveCommunicationLine()} disabled={!canManageOwnership}><Save size={17} /> {editingLineId ? "Güncelle" : "Hat Ekle"}</button>
-                  {editingLineId && <button className="btn btn-secondary" onClick={() => { setEditingLineId(""); setLineForm(emptyLineForm()); }}>Vazgeç</button>}
+                  <button className="btn-op-primary" onClick={() => void saveCommunicationLine()} disabled={!canManageOwnership}><Save size={17} /> {editingLineId ? "Güncelle" : "Hat Ekle"}</button>
+                  {editingLineId && <button className="btn-op-secondary" onClick={() => { setEditingLineId(""); setLineForm(emptyLineForm()); }}>Vazgeç</button>}
                 </div>
                 {!canManageOwnership && <p className="mt-4 rounded-md border border-line bg-panelSoft p-3 text-sm text-slate-400">Hat yönetimi Admin / COO yetkisindedir. Bu ekranı görüntüleyebilirsiniz.</p>}
               </div>
@@ -2472,19 +2473,19 @@ export default function Home() {
                           {(replacementOf || replacedBy) && <p className="mt-1 text-amber-200">Değişim: {replacementOf ? `Eski ${replacementOf.name}` : ""}{replacedBy ? ` Yeni ${replacedBy.name}` : ""}</p>}
                         </div>
                         <div className="flex flex-wrap justify-end gap-2">
-                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => editCommunicationLine(line)} disabled={!canManageOwnership}>Düzenle</button>
+                          <button className="btn-op-secondary h-8 px-2 text-xs" onClick={() => editCommunicationLine(line)} disabled={!canManageOwnership}>Düzenle</button>
                           {isWhatsAppBaileysLine(line) && (
                             <>
-                              <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => { console.log("QR_V2_CLICKED_LINE_ID:", line.id); void refreshWhatsAppQr(line); }} disabled={!canRequestQr}>QR Oluştur v2 TEST</button>
-                              <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void connectWhatsAppLine(line)} disabled={!canConnectQr}>WhatsApp Bağla</button>
-                              <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void refreshWhatsAppQr(line)} disabled={!canRefreshQr}>QR Yenile</button>
-                              <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void disconnectWhatsAppLine(line)} disabled={!canDisconnectQr}>Bağlantıyı Kes</button>
+                              <button className="btn-op-secondary h-8 px-2 text-xs" onClick={() => { console.log("QR_V2_CLICKED_LINE_ID:", line.id); void refreshWhatsAppQr(line); }} disabled={!canRequestQr}>QR Oluştur v2 TEST</button>
+                              <button className="btn-op-secondary h-8 px-2 text-xs" onClick={() => void connectWhatsAppLine(line)} disabled={!canConnectQr}>WhatsApp Bağla</button>
+                              <button className="btn-op-secondary h-8 px-2 text-xs" onClick={() => void refreshWhatsAppQr(line)} disabled={!canRefreshQr}>QR Yenile</button>
+                              <button className="btn-op-secondary h-8 px-2 text-xs" onClick={() => void disconnectWhatsAppLine(line)} disabled={!canDisconnectQr}>Bağlantıyı Kes</button>
                             </>
                           )}
-                          <button className="btn btn-primary h-8 px-2 text-xs" onClick={() => void makeLineDefault(line)} disabled={!canManageOwnership || line.isDefault || !canSendWithLineStatus(line.status)}>Aktif Hat Yap</button>
-                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void replaceCommunicationLine(line)} disabled={!canManageOwnership}>Hattı Değiştir</button>
-                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void updateLineStatus(line, "blocked")} disabled={!canManageOwnership}>Bloke</button>
-                          <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => void updateLineStatus(line, "qr_waiting")} disabled={!canManageOwnership}>QR Bekliyor</button>
+                          <button className="btn-op-primary h-8 px-2 text-xs" onClick={() => void makeLineDefault(line)} disabled={!canManageOwnership || line.isDefault || !canSendWithLineStatus(line.status)}>Aktif Hat Yap</button>
+                          <button className="btn-op-secondary h-8 px-2 text-xs" onClick={() => void replaceCommunicationLine(line)} disabled={!canManageOwnership}>Hattı Değiştir</button>
+                          <button className="btn-op-secondary h-8 px-2 text-xs" onClick={() => void updateLineStatus(line, "blocked")} disabled={!canManageOwnership}>Bloke</button>
+                          <button className="btn-op-secondary h-8 px-2 text-xs" onClick={() => void updateLineStatus(line, "qr_waiting")} disabled={!canManageOwnership}>QR Bekliyor</button>
                         </div>
                       </div>
                       <div className="mt-3 rounded-md border border-amber-400/25 bg-amber-400/5 p-3 font-mono text-[11px] text-amber-100">
@@ -2555,7 +2556,7 @@ export default function Home() {
               {performanceTab === "Genel Performans" && (
                 <>
               <div className="grid gap-3 xl:grid-cols-[340px_minmax(0,1fr)]">
-                <section className="rounded-lg border border-mint/20 bg-panel p-4">
+                <section className="op-card p-4">
                   <p className="text-xs text-slate-400">Operasyon Skoru</p>
                   <div className="mt-3 flex items-end gap-2">
                     <p className="text-4xl font-bold text-white">{operationScore}</p>
@@ -2714,7 +2715,7 @@ export default function Home() {
                       />
                     )}
                     <Select label="Durum" value={operatorForm.status} options={["Aktif", "Pasif"]} onChange={(value) => setOperatorForm({ ...operatorForm, status: value })} />
-                    <button className="btn btn-primary w-full" onClick={() => void addOperator()}><Plus size={17} /> Operatör Kaydet</button>
+                    <button className="btn-op-primary w-full" onClick={() => void addOperator()}><Plus size={17} /> Operatör Kaydet</button>
                   </div>
                 </div>
               )}
@@ -2836,10 +2837,10 @@ export default function Home() {
                     })}
                   </div>
                   <div className="mt-5 flex flex-wrap gap-2">
-                    <button className="btn btn-secondary" onClick={() => void runAutomation(true)} disabled={automationLoading || !canManageOperationRules}>
+                    <button className="btn-op-secondary" onClick={() => void runAutomation(true)} disabled={automationLoading || !canManageOperationRules}>
                       Test Et
                     </button>
-                    <button className="btn btn-primary" onClick={() => void runAutomation(false)} disabled={automationLoading || !canManageOperationRules}>
+                    <button className="btn-op-primary" onClick={() => void runAutomation(false)} disabled={automationLoading || !canManageOperationRules}>
                       Önerileri Hazırla
                     </button>
                     {!canManageOperationRules && (
@@ -2925,7 +2926,7 @@ export default function Home() {
                 <h2 className="text-xl font-bold text-[#F4F1EA]">Görev Merkezi</h2>
                 <p className="mt-1 text-sm text-slate-400">Bugünkü görevler ve kişi atamaları</p>
               </div>
-              <button className="btn btn-secondary" onClick={() => setTaskCenterOpen(false)}>Kapat</button>
+              <button className="btn-op-secondary" onClick={() => setTaskCenterOpen(false)}>Kapat</button>
             </div>
             <div className="mt-5 flex flex-wrap gap-2">
               {(["Bugünkü Görevler", "Geçmiş Görevler"] as const).map((tab) => (
@@ -3006,7 +3007,7 @@ export default function Home() {
                   ))}
                   {filteredTaskContacts.length === 0 && <p className="rounded-md border border-line bg-panelSoft p-3 text-sm text-slate-400">Eşleşen kişi bulunamadı.</p>}
                 </div>
-                <button className="btn btn-primary mt-4 w-full" onClick={() => void saveDailyTasks()} disabled={!canDistributeTasks}>
+                <button className="btn-op-primary mt-4 w-full" onClick={() => void saveDailyTasks()} disabled={!canDistributeTasks}>
                   <Save size={17} /> Kaydet
                 </button>
               </div>
@@ -3038,7 +3039,7 @@ export default function Home() {
                 <h2 className="text-xl font-bold text-[#F4F1EA]">Alarm Merkezi</h2>
                 <p className="mt-1 text-sm text-slate-400">Alarm oluştur ve geçmişi takip et</p>
               </div>
-              <button className="btn btn-secondary" onClick={() => setAlarmCenterOpen(false)}>Kapat</button>
+              <button className="btn-op-secondary" onClick={() => setAlarmCenterOpen(false)}>Kapat</button>
             </div>
             <div className="mt-5 grid gap-4 lg:grid-cols-[320px_1fr]">
               <div className="rounded-lg border border-line bg-ink/40 p-4">
@@ -3054,7 +3055,7 @@ export default function Home() {
                   <span className="label">Alarm notu</span>
                   <textarea className="field min-h-28" value={alarmForm.note} onChange={(event) => setAlarmForm({ ...alarmForm, note: event.target.value })} />
                 </label>
-                <button className="btn btn-primary mt-4 w-full" onClick={() => void createAlarm()}>
+                <button className="btn-op-primary mt-4 w-full" onClick={() => void createAlarm()}>
                   <Bell size={17} /> Alarm oluştur
                 </button>
               </div>
@@ -3071,7 +3072,7 @@ export default function Home() {
                 <h2 className="text-xl font-bold text-[#F4F1EA]">Talep Detayı</h2>
                 <p className="mt-1 text-sm text-slate-400">{requestDisplayName(requestDetail, requestDetailContact)} | {requestPhone(requestDetail, requestDetailContact)} | {formatDate(requestDetail.createdAt)}</p>
               </div>
-              <button className="btn btn-secondary" onClick={() => setRequestDetailId("")}>Kapat</button>
+              <button className="btn-op-secondary" onClick={() => setRequestDetailId("")}>Kapat</button>
             </div>
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               <Info label="Ad" value={requestFirstName(requestDetail, requestDetailContact)} />
@@ -3120,17 +3121,17 @@ export default function Home() {
               </label>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
-              <button className="btn btn-secondary" onClick={() => openMessageForRequest(requestDetail)}>
+              <button className="btn-op-secondary" onClick={() => openMessageForRequest(requestDetail)}>
                 <MessageCircle size={17} /> Mesaj Aç
               </button>
-              <button className="btn btn-secondary" onClick={() => void updateRequestDetail()}>
+              <button className="btn-op-secondary" onClick={() => void updateRequestDetail()}>
                 <Save size={17} /> Durum Güncelle / Not Ekle
               </button>
             </div>
             <div className="mt-5 rounded-lg border border-line bg-ink/40 p-4">
               <div className="flex items-center justify-between gap-3">
                 <h3 className="font-semibold text-white">Bonus / İşlem Komutu</h3>
-                <button className="btn btn-primary h-9" onClick={() => void copyBonusCommand()}>
+                <button className="btn-op-primary h-9" onClick={() => void copyBonusCommand()}>
                   <Copy size={16} /> Oluştur / Kopyala
                 </button>
               </div>
@@ -3147,7 +3148,7 @@ export default function Home() {
                 <h2 className="text-xl font-bold text-[#F4F1EA]">Kişi Görev Detayı</h2>
                 <p className="mt-1 text-sm text-slate-400">{taskDetailContact.name} | {taskDetailContact.phone} | {taskDetailDateKey ? formatShortDate(new Date(`${taskDetailDateKey}T00:00:00`)) : ""}</p>
               </div>
-              <button className="btn btn-secondary" onClick={() => {
+              <button className="btn-op-secondary" onClick={() => {
                 setTaskDetailContactId("");
                 setTaskDetailDateKey("");
               }}>Kapat</button>
@@ -3167,13 +3168,13 @@ export default function Home() {
                     <p className="text-sm text-slate-400">{formatShortDate(new Date(task.taskDate))}</p>
                     <p className="text-sm text-slate-400">{timeDisplay(new Date(task.createdAt))}</p>
                     <span className={clsx("status-pill w-fit", task.status === "Tamamlandı" ? statusTone.Tamamlandı : statusTone.Beklemede)}>{task.status}</span>
-                    <button className="btn btn-secondary h-9" onClick={() => void toggleTaskStatus(task)}>
+                    <button className="btn-op-secondary h-9" onClick={() => void toggleTaskStatus(task)}>
                       {task.status === "Bekliyor" ? "Tamamlandı" : "Beklemede"}
                     </button>
                     {task.status === "Bekliyor" && (
                       <>
-                        <button className="btn btn-secondary h-9" onClick={() => void guideAssistantTask(task)}>Yönlendir</button>
-                        <button className="btn btn-secondary h-9" onClick={() => void ignoreAssistantTask(task)}>Yoksay</button>
+                        <button className="btn-op-secondary h-9" onClick={() => void guideAssistantTask(task)}>Yönlendir</button>
+                        <button className="btn-op-secondary h-9" onClick={() => void ignoreAssistantTask(task)}>Yoksay</button>
                       </>
                     )}
                   </div>
@@ -3184,7 +3185,7 @@ export default function Home() {
                       value={taskNoteDrafts[task.id] ?? ""}
                       onChange={(event) => setTaskNoteDrafts((drafts) => ({ ...drafts, [task.id]: event.target.value }))}
                     />
-                    <button className="btn btn-primary self-end" onClick={() => void saveTaskNote(task)}><Save size={17} /> Not Kaydet</button>
+                    <button className="btn-op-primary self-end" onClick={() => void saveTaskNote(task)}><Save size={17} /> Not Kaydet</button>
                   </div>
                   {task.automationRuleKey && (
                     <div className="mt-4 rounded-md border border-line bg-panelSoft p-3">
@@ -3224,7 +3225,7 @@ export default function Home() {
               ))}
             </div>
             <div className="mt-4 flex justify-end">
-              <button className="btn btn-secondary" onClick={() => taskDetailTasks[0] && openTaskContact(taskDetailTasks[0])}><MessageCircle size={17} /> Mesaj Aç</button>
+              <button className="btn-op-secondary" onClick={() => taskDetailTasks[0] && openTaskContact(taskDetailTasks[0])}><MessageCircle size={17} /> Mesaj Aç</button>
             </div>
           </section>
         </div>
@@ -3237,7 +3238,7 @@ export default function Home() {
                 <h2 className="text-xl font-bold text-[#F4F1EA]">Müşteri Zaman Çizelgesi</h2>
                 <p className="mt-1 text-sm text-slate-400">{timelineContact.name} | {timelineContact.phone}</p>
               </div>
-              <button className="btn btn-secondary" onClick={() => setTimelineContactId("")}>Kapat</button>
+              <button className="btn-op-secondary" onClick={() => setTimelineContactId("")}>Kapat</button>
             </div>
             <div className="mt-5 space-y-3">
               {timelineEvents.map((event) => (
@@ -3262,7 +3263,7 @@ export default function Home() {
                 <h2 className="text-xl font-bold text-[#F4F1EA]">Oto Sesli Yanıt</h2>
                 <p className="mt-1 text-sm text-slate-400">Türkçe, doğal kadın sesiyle gerçek TTS önizleme akışı</p>
               </div>
-              <button className="btn btn-secondary" onClick={() => setVoiceModalOpen(false)}>Kapat</button>
+              <button className="btn-op-secondary" onClick={() => setVoiceModalOpen(false)}>Kapat</button>
             </div>
             {voiceError && <p className="mt-4 rounded-md border border-coral/30 bg-coral/10 p-3 text-sm text-red-200">{voiceError}</p>}
             <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_260px]">
@@ -3282,10 +3283,10 @@ export default function Home() {
                 </label>
                 <p className="mt-2 text-xs text-slate-500">{voiceDraft.length}/600 · Değişkenler: {"{isim}"}, {"{hitap}"}, {"{kullaniciAdi}"}, {"{miktar}"}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <button className="btn btn-primary" onClick={() => void generateVoiceReply()} disabled={voiceLoading}>
+                  <button className="btn-op-primary" onClick={() => void generateVoiceReply()} disabled={voiceLoading}>
                     <Volume2 size={17} /> {voiceLoading ? "Oluşturuluyor" : "Kadın sesiyle oluştur"}
                   </button>
-                  <button className="btn btn-secondary" onClick={() => void sendVoiceReply()} disabled={!voiceAudioUrl || !selectedContact}>
+                  <button className="btn-op-secondary" onClick={() => void sendVoiceReply()} disabled={!voiceAudioUrl || !selectedContact}>
                     <Send size={17} /> Gönder
                   </button>
                 </div>
@@ -3319,7 +3320,7 @@ export default function Home() {
                 </div>
                 <div className="mt-4 border-t border-line pt-4">
                   <Input label="Şablon adı" value={voiceTemplateTitle} onChange={setVoiceTemplateTitle} />
-                  <button className="btn btn-secondary mt-3 w-full" onClick={() => void saveVoiceTemplate()}>
+                  <button className="btn-op-secondary mt-3 w-full" onClick={() => void saveVoiceTemplate()}>
                     <Save size={16} /> Şablon Kaydet
                   </button>
                 </div>
@@ -3337,7 +3338,7 @@ export default function Home() {
                 <p className="mt-1 text-sm text-slate-400">{memberDisplayName(memberDetail)} | {memberDetail.phone}</p>
                 <div className="mt-3"><TagBadges tags={memberDetail.tags} /></div>
               </div>
-              <button className="btn btn-secondary" onClick={() => setMemberDetailId("")}>Kapat</button>
+              <button className="btn-op-secondary" onClick={() => setMemberDetailId("")}>Kapat</button>
             </div>
             <div className="mt-5 flex flex-wrap gap-2">
               {(["Genel Bilgiler", "Notlar", "Talepler", "Görevler", "Mesajlar", "Zaman Çizelgesi"] as const).map((tab) => (
@@ -3376,8 +3377,8 @@ export default function Home() {
                 <section className="mt-5 rounded-lg border border-line bg-ink/40 p-4">
                   <h3 className="font-semibold text-white">Hızlı İşlemler</h3>
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <button className="btn btn-secondary" onClick={() => setMemberDetailTab("Zaman Çizelgesi")}>Zaman Çizelgesi</button>
-                    <button className="btn btn-secondary" onClick={() => editContact(memberDetail)}>Düzenle</button>
+                    <button className="btn-op-secondary" onClick={() => setMemberDetailTab("Zaman Çizelgesi")}>Zaman Çizelgesi</button>
+                    <button className="btn-op-secondary" onClick={() => editContact(memberDetail)}>Düzenle</button>
                   </div>
                 </section>
                 <section className="mt-5 rounded-lg border border-line bg-ink/40 p-4">
@@ -3418,7 +3419,7 @@ export default function Home() {
                     value={memberNoteDraft}
                     onChange={(event) => setMemberNoteDraft(event.target.value)}
                   />
-                  <button className="btn btn-primary self-end" onClick={() => void saveMemberNote()} disabled={!memberNoteDraft.trim()}>
+                  <button className="btn-op-primary self-end" onClick={() => void saveMemberNote()} disabled={!memberNoteDraft.trim()}>
                     <Save size={17} /> Not Ekle
                   </button>
                 </div>
@@ -3446,7 +3447,7 @@ export default function Home() {
                       <span className="text-slate-500">{formatShortDate(new Date(request.createdAt))}</span>
                       <span className="text-slate-500">{request.status === "Tamamlandı" || request.status === "Kapatıldı" ? formatShortDate(new Date(request.updatedAt)) : "-"}</span>
                       <span className="truncate text-slate-400">{request.note || "-"}</span>
-                      <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => openRequestDetail(request)}>Detay</button>
+                      <button className="btn-op-secondary h-8 px-2 text-xs" onClick={() => openRequestDetail(request)}>Detay</button>
                     </div>
                   ))}
                   {memberDetailRequests.length === 0 && <p className="rounded-md border border-line bg-panelSoft p-3 text-sm text-slate-500">Bu üyeye ait kayıt bulunmuyor.</p>}
@@ -3466,7 +3467,7 @@ export default function Home() {
                       <span className="text-slate-500">{task.status === "Tamamlandı" ? formatShortDate(new Date(task.updatedAt)) : "-"}</span>
                       <SourceBadge source={task.source} />
                       <span className="truncate text-slate-400">{task.notes[0]?.noteText || task.note || "-"}</span>
-                      <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => openTaskDetail(memberDetail.id, dateKey(task.taskDate))}>Detay</button>
+                      <button className="btn-op-secondary h-8 px-2 text-xs" onClick={() => openTaskDetail(memberDetail.id, dateKey(task.taskDate))}>Detay</button>
                     </div>
                   ))}
                   {memberDetailTasks.length === 0 && <p className="rounded-md border border-line bg-panelSoft p-3 text-sm text-slate-500">Bu üyeye ait kayıt bulunmuyor.</p>}
@@ -3516,21 +3517,21 @@ export default function Home() {
       )}
       {activeAlarm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/75 p-4">
-          <section className="w-full max-w-md rounded-lg border border-mint/30 bg-panel p-6 text-center shadow-glow">
-            <CalendarClock className="mx-auto text-mint" size={34} />
+          <section className="surface-glass shadow-op-md w-full max-w-md rounded-xl p-6 text-center">
+            <CalendarClock className="mx-auto text-gold" size={34} />
             <h2 className="mt-4 text-xl font-bold text-[#F4F1EA]">Alarm Zamanı</h2>
             <p className="mt-3 rounded-md border border-line bg-panelSoft p-4 text-sm leading-6 text-slate-200">{activeAlarm.note}</p>
             <p className="mt-3 text-xs text-slate-500">{formatDate(activeAlarm.scheduledAt)}</p>
             <div className="mt-5 flex flex-wrap justify-center gap-2">
-              <button className="btn btn-primary" onClick={() => {
+              <button className="btn-op-primary" onClick={() => {
                 void updateAlarm(activeAlarm.id, "complete");
                 setTaskCenterOpen(true);
                 setActive("Dashboard");
               }}>
                 Göreve Git
               </button>
-              <button className="btn btn-secondary" onClick={() => void updateAlarm(activeAlarm.id, "snooze")}>Ertele 10 dk</button>
-              <button className="btn btn-secondary" onClick={() => void updateAlarm(activeAlarm.id, "close")}>Kapat</button>
+              <button className="btn-op-secondary" onClick={() => void updateAlarm(activeAlarm.id, "snooze")}>Ertele 10 dk</button>
+              <button className="btn-op-secondary" onClick={() => void updateAlarm(activeAlarm.id, "close")}>Kapat</button>
             </div>
           </section>
         </div>
@@ -3542,14 +3543,14 @@ export default function Home() {
         const secondsLeft = modalLine?.qrUpdatedAt ? Math.max(0, 60 - Math.floor((Date.now() - new Date(modalLine.qrUpdatedAt).getTime()) / 1000)) : 60;
         return (
           <div className="fixed inset-0 z-[75] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-            <section className="w-full max-w-md overflow-hidden rounded-xl border border-mint/25 bg-[#071313] shadow-[0_0_40px_rgba(51,214,159,0.12)]">
+            <section className="surface-glass shadow-op-lg w-full max-w-md overflow-hidden rounded-xl">
               <div className="border-b border-line bg-panel/80 p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold">Operation Pact</p>
                     <h2 className="mt-1 text-xl font-bold text-[#F4F1EA]">WhatsApp Connection</h2>
                   </div>
-                  <button className="btn btn-secondary h-9 px-3 text-xs" onClick={() => setWhatsAppQrModal(null)}>Kapat</button>
+                  <button className="btn-op-secondary h-9 px-3 text-xs" onClick={() => setWhatsAppQrModal(null)}>Kapat</button>
                 </div>
               </div>
               <div className="p-6">
@@ -3581,8 +3582,8 @@ export default function Home() {
                 </div>
                 {whatsAppQrModal.message && <p className="mt-3 rounded-md border border-line bg-ink/50 p-3 text-sm text-slate-300">{whatsAppQrModal.message}</p>}
                 <div className="mt-5 flex flex-wrap justify-end gap-2">
-                  {modalLine && <button className="btn btn-secondary" onClick={() => void refreshWhatsAppQr(modalLine)}>QR Yenile</button>}
-                  {modalLine && <button className="btn btn-secondary" onClick={() => void disconnectWhatsAppLine(modalLine)}>Bağlantıyı Kes</button>}
+                  {modalLine && <button className="btn-op-secondary" onClick={() => void refreshWhatsAppQr(modalLine)}>QR Yenile</button>}
+                  {modalLine && <button className="btn-op-secondary" onClick={() => void disconnectWhatsAppLine(modalLine)}>Bağlantıyı Kes</button>}
                 </div>
               </div>
             </section>
@@ -3597,7 +3598,7 @@ export default function Home() {
                 <h2 className="text-lg font-bold text-white">Oturum {sessionSlotModal}</h2>
                 <p className="mt-1 text-sm text-slate-400">Bu slota bir iletişim hattı bağla.</p>
               </div>
-              <button className="btn btn-secondary h-9" onClick={() => setSessionSlotModal(null)}>Kapat</button>
+              <button className="btn-op-secondary h-9" onClick={() => setSessionSlotModal(null)}>Kapat</button>
             </div>
             <div className="mt-5">
               <Select
@@ -3612,7 +3613,7 @@ export default function Home() {
                   Boşta iletişim hattı yok. Bir oturumu kapatırsanız bağlı hat tekrar havuza döner.
                 </p>
               )}
-              <button className="btn btn-primary mt-4 w-full" onClick={() => void assignLineSessionSlot()} disabled={!sessionLineSelect}>
+              <button className="btn-op-primary mt-4 w-full" onClick={() => void assignLineSessionSlot()} disabled={!sessionLineSelect}>
                 Oturumu Aç
               </button>
             </div>
@@ -3657,8 +3658,8 @@ function TaskList({
               </div>
               <div className="text-xs text-slate-400">{group.latestTaskAt ? formatShortDate(new Date(group.latestTaskAt)) : "-"}</div>
               <div className="flex flex-wrap justify-end gap-2">
-                <button className="btn btn-secondary h-8 whitespace-nowrap px-3 text-xs" onClick={() => onOpenDetail(group.contactId)}>Detay</button>
-                <button className="btn btn-primary h-8 whitespace-nowrap px-3 text-xs" onClick={() => pendingTask && onGuideTask(pendingTask)} disabled={!pendingTask || pendingTask.status !== "Bekliyor"}>Yönlendir</button>
+                <button className="btn-op-secondary h-8 whitespace-nowrap px-3 text-xs" onClick={() => onOpenDetail(group.contactId)}>Detay</button>
+                <button className="btn-op-primary h-8 whitespace-nowrap px-3 text-xs" onClick={() => pendingTask && onGuideTask(pendingTask)} disabled={!pendingTask || pendingTask.status !== "Bekliyor"}>Yönlendir</button>
               </div>
             </div>
           );
@@ -3847,7 +3848,7 @@ function CustomerInfoPanel({
                 <h3 className="font-semibold text-white">{contactDisplayName(contact)}</h3>
                 <p className="mt-1 text-sm text-slate-400">{contact.phone}</p>
               </div>
-              <button className="btn btn-secondary h-8 px-2 text-xs" onClick={() => onOpenTimeline(contact.id)}>Zaman Çizelgesi</button>
+              <button className="btn-op-secondary h-8 px-2 text-xs" onClick={() => onOpenTimeline(contact.id)}>Zaman Çizelgesi</button>
             </div>
             <div className="mt-4 grid gap-2 text-sm">
               <Info label="Cinsiyet" value={contact.gender} />
@@ -3871,7 +3872,7 @@ function CustomerInfoPanel({
               value={noteDraft}
               onChange={(event) => onNoteDraftChange(event.target.value)}
             />
-            <button className="btn btn-primary mt-3 h-9 w-full" onClick={onSaveNote} disabled={!noteDraft.trim()}>
+            <button className="btn-op-primary mt-3 h-9 w-full" onClick={onSaveNote} disabled={!noteDraft.trim()}>
               <Save size={16} /> Not Ekle
             </button>
             <div className="mt-4 space-y-2">
@@ -3939,7 +3940,7 @@ function OwnershipConflictPanel({
           onChange={(event) => onNoteChange(event.target.value)}
         />
       </label>
-      <button className="btn btn-primary mt-3" onClick={onAskAdmin}>
+      <button className="btn-op-primary mt-3" onClick={onAskAdmin}>
         Admine Sor
       </button>
     </section>
@@ -4004,7 +4005,7 @@ function SystemGuidePage({
               />
             </div>
           </label>
-          <div className="rounded-md border border-mint/20 bg-mint/10 p-4">
+          <div className="rounded-md border border-gold/20 bg-gold/10 p-4">
             <div className="flex items-center justify-between gap-3">
               <p className="font-semibold text-white">Son Güncelleme</p>
               <span className="text-xs text-gold">{systemGuideLastUpdate.date}</span>
@@ -4012,7 +4013,7 @@ function SystemGuidePage({
             <p className="mt-1 text-sm text-slate-300">{systemGuideLastUpdate.sprint}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {systemGuideLastUpdate.additions.map((addition) => (
-                <span key={addition} className="rounded-full border border-mint/20 bg-panel px-2 py-1 text-xs text-emerald-100">✓ {addition}</span>
+                <span key={addition} className="rounded-full border border-gold/20 bg-panel px-2 py-1 text-xs text-[#E7DDC5]">✓ {addition}</span>
               ))}
             </div>
           </div>
@@ -4130,10 +4131,10 @@ function OwnershipRequestCenter({
               </div>
               {request.note && <p className="mt-3 rounded-md border border-line bg-panelSoft p-3 text-sm leading-6 text-slate-300">{request.note}</p>}
               <div className="mt-4 flex flex-wrap gap-2">
-                <button className="btn btn-primary h-8 px-3 text-xs" onClick={() => onDecide(request.id, "approve")}>Onayla / Devret</button>
-                <button className="btn btn-secondary h-8 px-3 text-xs" onClick={() => onDecide(request.id, "reject")}>Reddet</button>
-                <button className="btn btn-secondary h-8 px-3 text-xs" onClick={() => onDecide(request.id, "pool")}>Havuza Al</button>
-                <button className="btn btn-secondary h-8 px-3 text-xs text-rose-200 hover:border-rose-500/60" onClick={() => onDecide(request.id, "block")}>Bloke Et</button>
+                <button className="btn-op-primary h-8 px-3 text-xs" onClick={() => onDecide(request.id, "approve")}>Onayla / Devret</button>
+                <button className="btn-op-secondary h-8 px-3 text-xs" onClick={() => onDecide(request.id, "reject")}>Reddet</button>
+                <button className="btn-op-secondary h-8 px-3 text-xs" onClick={() => onDecide(request.id, "pool")}>Havuza Al</button>
+                <button className="btn-op-secondary h-8 px-3 text-xs text-rose-200 hover:border-rose-500/60" onClick={() => onDecide(request.id, "block")}>Bloke Et</button>
               </div>
             </article>
           );
@@ -4205,7 +4206,7 @@ function MemberTransferCenter({
         </label>
       )}
       <div className="mt-5 flex flex-wrap items-center gap-2">
-        <button className="btn btn-primary" onClick={onTransfer} disabled={!form.contactId || !form.operatorId}>
+        <button className="btn-op-primary" onClick={onTransfer} disabled={!form.contactId || !form.operatorId}>
           Üyeyi Devret
         </button>
         <p className="text-sm text-slate-500">Transfer; üye, mesaj, talep, görev ve timeline kayıtlarını silmez.</p>
@@ -4386,7 +4387,7 @@ function DepartmentPlaceholder({ active, onLogout }: { active: ActiveMenu; onLog
         <p className="mt-6 text-xs font-semibold uppercase tracking-[0.28em] text-gold">Coming Soon</p>
         <h1 className="mt-3 text-3xl font-bold text-white">{module?.title ?? active}</h1>
         <p className="mt-3 text-sm leading-6 text-[#9CA8A8]">{module?.description ?? "This department placeholder is reserved for a future Operation Pact module."}</p>
-        <button className="btn btn-secondary mx-auto mt-6" onClick={onLogout}>Çıkış Yap</button>
+        <button className="btn-op-secondary mx-auto mt-6" onClick={onLogout}>Çıkış Yap</button>
       </div>
     </section>
   );
@@ -4604,16 +4605,16 @@ function AutomationDecisionReport({
             </div>
             <p className="mt-3 text-sm leading-6 text-slate-300">Gerekçe: {decision.reason}</p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <button className="btn btn-secondary h-8 px-3" onClick={() => onOpenChat(decision)} disabled={!canUseChatGuidance(decision)}>
+              <button className="btn-op-secondary h-8 px-3" onClick={() => onOpenChat(decision)} disabled={!canUseChatGuidance(decision)}>
                 Sohbete Git
               </button>
-              <button className="btn btn-secondary h-8 px-3" onClick={() => onCreateTask(decision)} disabled={!canCreateGuidanceTask(decision)}>
+              <button className="btn-op-secondary h-8 px-3" onClick={() => onCreateTask(decision)} disabled={!canCreateGuidanceTask(decision)}>
                 Görev Aç
               </button>
-              <button className="btn btn-secondary h-8 px-3" onClick={() => onPrepareVoice(decision)} disabled={decision.actionType !== "VOICE_FOLLOWUP"}>
+              <button className="btn-op-secondary h-8 px-3" onClick={() => onPrepareVoice(decision)} disabled={decision.actionType !== "VOICE_FOLLOWUP"}>
                 Sesli Yanıt Hazırla
               </button>
-              <button className="btn btn-secondary h-8 px-3" onClick={() => onIgnore(decision)}>
+              <button className="btn-op-secondary h-8 px-3" onClick={() => onIgnore(decision)}>
                 Yoksay
               </button>
             </div>
@@ -4686,7 +4687,7 @@ function RequestTable({
                 <td className="px-3 py-3 text-slate-400">{formatDate(request.createdAt)}</td>
                 <td className="px-3 py-3">
                   <div className="flex flex-wrap justify-end gap-2">
-                    <button className="btn btn-secondary h-8 px-3" onClick={() => onOpenDetail(request)}>Detay Gör</button>
+                    <button className="btn-op-secondary h-8 px-3" onClick={() => onOpenDetail(request)}>Detay Gör</button>
                   </div>
                 </td>
               </tr>
@@ -4755,7 +4756,7 @@ function CustomerCard({ data, contact }: { data: AppData; contact?: Contact }) {
   return (
     <section className="rounded-lg border border-line bg-panel p-4">
       <div className="flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-md bg-mint text-lg font-bold text-ink">{contact.name.slice(0, 1)}</div>
+        <div className="flex h-11 w-11 items-center justify-center rounded-md bg-gold text-lg font-bold text-ink">{contact.name.slice(0, 1)}</div>
         <div>
           <h3 className="font-semibold text-white">{contact.name}</h3>
           <p className="text-sm text-slate-400">{contact.phone}</p>
