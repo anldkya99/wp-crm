@@ -1,6 +1,7 @@
 export type RequestStatus = "Yeni" | "İşlemde" | "Beklemede" | "Tamamlandı" | "Kapatıldı";
 export type ConversationStatus = "Yeni" | "İşlemde" | "Cevaplandı" | "Kapandı";
 export type Role = "Admin" | "Takım Lideri" | "Operatör";
+export type PlatformRole = "OP_CEO" | "COMPANY_BOSS" | "COMPANY_ADMIN" | "DEPARTMENT_ADMIN" | "OPERATOR";
 export type RequestType = "Bonus" | "Nakit hediye" | "Düzeltme alt/üst" | "Bahis detayı";
 
 export type Contact = {
@@ -198,6 +199,7 @@ export type Operator = {
   name: string;
   email: string;
   role: Role;
+  platformRole?: PlatformRole;
   status: "Aktif" | "Pasif";
   ttsDailyLimit: number;
   teamLeadId?: string;
@@ -333,6 +335,7 @@ export type SessionUser = {
   name: string;
   email: string;
   role: Role;
+  platformRole?: PlatformRole;
 };
 
 export type AppData = {

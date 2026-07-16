@@ -1,5 +1,5 @@
 import type { AlarmItem, AutomationDecisionLog, AutomationQuestionAnswer, AutomationRuleSetting, AutomationTaskLog, CommunicationLine, CommunicationSession, Contact, ContactOwnershipRequest, Conversation, CustomerNote, DailyTask, MemberTag, Message, MessageTemplate, Operator, OperatorLineSession, RequestItem, RequestType, TimelineEvent, TtsUsageLog, VoiceTemplate } from "@/types/domain";
-import { conversationStatusLabels, requestStatusLabels, userRoleLabels, userStatusLabels } from "@/lib/status";
+import { conversationStatusLabels, normalizePlatformRole, requestStatusLabels, userRoleLabels, userStatusLabels } from "@/lib/status";
 
 type DbContact = {
   id: string;
@@ -187,6 +187,7 @@ type DbOperator = {
   name: string;
   email: string;
   role: keyof typeof userRoleLabels;
+  platformRole?: string | null;
   status: keyof typeof userStatusLabels;
   ttsDailyLimit?: number;
   teamLeadId?: string | null;
@@ -528,6 +529,7 @@ export function serializeOperator(operator: DbOperator): Operator {
     name: operator.name,
     email: operator.email,
     role: userRoleLabels[operator.role],
+    platformRole: normalizePlatformRole(operator.platformRole, operator.role),
     status: userStatusLabels[operator.status],
     ttsDailyLimit: operator.ttsDailyLimit ?? 50,
     teamLeadId: operator.teamLeadId ?? undefined,
