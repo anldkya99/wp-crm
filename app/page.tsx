@@ -1033,7 +1033,7 @@ export default function Home() {
     }
   }
 
-  async function useGuidanceDraft(decision: AutomationDecisionResult) {
+  async function applyGuidanceDraft(decision: AutomationDecisionResult) {
     const contact = contactById(scopedData, decision.memberId);
     if (!contact) return;
     const nextDraft = renderGuidanceDraft(decision, contact, latestRequestForContact(data, contact.id));
@@ -1049,7 +1049,7 @@ export default function Home() {
     await postJson("/api/automation-actions", { action: "DRAFT_USED", operatorId: user?.id, ...guidancePayload(decision), messageDraft: nextDraft });
   }
 
-  async function useGuidanceVoice(decision: AutomationDecisionResult) {
+  async function applyGuidanceVoice(decision: AutomationDecisionResult) {
     const contact = contactById(scopedData, decision.memberId);
     if (!contact) return;
     const nextDraft = renderGuidanceDraft(decision, contact, latestRequestForContact(data, contact.id));
@@ -2874,9 +2874,9 @@ export default function Home() {
                           <AutomationDecisionReport
                             decisions={automationResult.decisions}
                             contacts={data.contacts}
-                            onOpenChat={(decision) => void useGuidanceDraft(decision)}
+                            onOpenChat={(decision) => void applyGuidanceDraft(decision)}
                             onCreateTask={(decision) => void createTaskFromGuidance(decision)}
-                            onPrepareVoice={(decision) => void useGuidanceVoice(decision)}
+                            onPrepareVoice={(decision) => void applyGuidanceVoice(decision)}
                             onIgnore={(decision) => void ignoreGuidance(decision)}
                           />
                         </div>
@@ -4386,8 +4386,8 @@ function HomeBadge({ label, value, tone }: { label: string; value: string; tone?
   );
 }
 function DepartmentPlaceholder({ active, onLogout }: { active: ActiveMenu; onLogout: () => void }) {
-  const module = operationPactModules.find((item) => item.key === active);
-  const Icon = module?.icon ?? Building2;
+  const activeModule = operationPactModules.find((item) => item.key === active);
+  const Icon = activeModule?.icon ?? Building2;
   return (
     <section className="flex min-h-[calc(100vh-9rem)] items-center justify-center rounded-lg border border-line bg-panel p-6">
       <div className="max-w-xl text-center">
@@ -4395,8 +4395,8 @@ function DepartmentPlaceholder({ active, onLogout }: { active: ActiveMenu; onLog
           <Icon size={30} />
         </div>
         <p className="mt-6 text-xs font-semibold uppercase tracking-[0.28em] text-gold">Coming Soon</p>
-        <h1 className="mt-3 text-3xl font-bold text-white">{module?.title ?? active}</h1>
-        <p className="mt-3 text-sm leading-6 text-[#9CA8A8]">{module?.description ?? "This department placeholder is reserved for a future Operation Pact module."}</p>
+        <h1 className="mt-3 text-3xl font-bold text-white">{activeModule?.title ?? active}</h1>
+        <p className="mt-3 text-sm leading-6 text-[#9CA8A8]">{activeModule?.description ?? "This department placeholder is reserved for a future Operation Pact module."}</p>
         <button className="btn-op-secondary mx-auto mt-6" onClick={onLogout}>Çıkış Yap</button>
       </div>
     </section>
