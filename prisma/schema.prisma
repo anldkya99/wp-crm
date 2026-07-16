@@ -13,6 +13,14 @@ enum UserRole {
   OPERATOR
 }
 
+enum PlatformRole {
+  OP_CEO
+  COMPANY_BOSS
+  COMPANY_ADMIN
+  DEPARTMENT_ADMIN
+  OPERATOR
+}
+
 enum UserStatus {
   ACTIVE
   PASSIVE
@@ -64,8 +72,11 @@ model User {
   email                 String         @unique
   passwordHash          String         @map("password_hash")
   role                  UserRole       @default(OPERATOR)
+  platformRole          PlatformRole   @default(OPERATOR) @map("platform_role")
   status                UserStatus     @default(ACTIVE)
   ttsDailyLimit         Int            @default(50) @map("tts_daily_limit")
+  companyId             String?        @map("company_id")
+  departmentId          String?        @map("department_id")
   teamLeadId            String?        @map("team_lead_id")
   createdAt             DateTime       @default(now()) @map("created_at")
   requests              Request[]      @relation("RequestCreator")
@@ -76,10 +87,176 @@ model User {
   ttsUsageLogs          TtsUsageLog[]  @relation("TtsOperator")
   timelineEvents        TimelineEvent[] @relation("TimelineOperator")
   lineSessions          OperatorLineSession[]
+  company               Company?       @relation(fields: [companyId], references: [id])
+  department            Department?    @relation(fields: [departmentId], references: [id])
   teamLead              User?          @relation("TeamLeadMembers", fields: [teamLeadId], references: [id])
   teamMembers           User[]         @relation("TeamLeadMembers")
 
   @@map("users")
+}
+
+model Company {
+  id              String               @id @default(cuid())
+  name            String
+  slug            String               @unique
+  status          String               @default("active")
+  companyType     String               @default("standard") @map("company_type")
+  industryProfile String               @default("custom") @map("industry_profile")
+  licensePackage  String               @default("starter") @map("license_package")
+  licenseStatus   String               @default("active") @map("license_status")
+  country         String               @default("TR")
+  timezone        String               @default("Europe/Istanbul")
+  language        String               @default("tr")
+  currency        String               @default("TRY")
+  logoUrl         String?              @map("logo_url")
+  createdBy       String?              @map("created_by")
+  createdAt       DateTime             @default(now()) @map("created_at")
+  updatedAt       DateTime             @updatedAt @map("updated_at")
+  users           User[]
+  departments     Department[]
+  modules         CompanyModule[]
+  capabilities    CompanyCapability[]
+  featureFlags    CompanyFeatureFlag[]
+  settings        CompanySetting[]
+  configurationVersions ConfigurationVersion[]
+  permissionGrants CompanyPermissionGrant[]
+  auditLogs       CompanyAuditLog[]
+
+  @@map("companies")
+}
+
+model Department {
+  id        String   @id @default(cuid())
+  companyId String   @map("company_id")
+  name      String
+  slug      String
+  status    String   @default("active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  users     User[]
+
+  @@unique([companyId, slug])
+  @@map("departments")
+}
+
+model CompanyModule {
+  id                 String   @id @default(cuid())
+  companyId          String   @map("company_id")
+  moduleId           String   @map("module_id")
+  name               String
+  version            String
+  navigationGroup    String   @map("navigation_group")
+  permissionGroup    String   @map("permission_group")
+  licenseRequirement String   @map("license_requirement")
+  featureFlag        String?  @map("feature_flag")
+  auditEnabled       Boolean  @default(false) @map("audit_enabled")
+  dependenciesJson   Json     @default("[]") @map("dependencies_json")
+  defaultEnabled     Boolean  @default(false) @map("default_enabled")
+  enabled            Boolean  @default(false)
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+  company            Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, moduleId])
+  @@map("company_modules")
+}
+
+model CompanyCapability {
+  id                 String   @id @default(cuid())
+  companyId          String   @map("company_id")
+  moduleId           String   @map("module_id")
+  capabilityId       String   @map("capability_id")
+  name               String
+  version            String
+  category           String
+  permissionGroup    String   @map("permission_group")
+  licenseRequirement String   @map("license_requirement")
+  featureFlagsJson   Json     @default("[]") @map("feature_flags_json")
+  dependenciesJson   Json     @default("[]") @map("dependencies_json")
+  defaultEnabled     Boolean  @default(false) @map("default_enabled")
+  enabled            Boolean  @default(false)
+  lifecycleState     String   @default("registered") @map("lifecycle_state")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+  company            Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, capabilityId])
+  @@index([moduleId])
+  @@map("company_capabilities")
+}
+
+model CompanyFeatureFlag {
+  id        String   @id @default(cuid())
+  companyId String   @map("company_id")
+  key       String
+  enabled   Boolean  @default(false)
+  source    String   @default("provisioning")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, key])
+  @@map("company_feature_flags")
+}
+
+model CompanySetting {
+  id        String   @id @default(cuid())
+  companyId String   @map("company_id")
+  key       String
+  valueJson Json     @map("value_json")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, key])
+  @@map("company_settings")
+}
+
+model ConfigurationVersion {
+  id                 String   @id @default(cuid())
+  configurationId    String   @map("configuration_id")
+  scope              String
+  companyId          String?  @map("company_id")
+  departmentId       String?  @map("department_id")
+  operatorId         String?  @map("operator_id")
+  previousValueJson  Json?    @map("previous_value_json")
+  newValueJson       Json     @map("new_value_json")
+  changedBy          String?  @map("changed_by")
+  version            Int
+  createdAt          DateTime @default(now()) @map("created_at")
+  company            Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([configurationId, scope])
+  @@index([companyId, configurationId])
+  @@map("configuration_versions")
+}
+
+model CompanyPermissionGrant {
+  id         String   @id @default(cuid())
+  companyId  String   @map("company_id")
+  platformRole PlatformRole @map("platform_role")
+  permission String
+  createdAt  DateTime @default(now()) @map("created_at")
+  company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, platformRole, permission])
+  @@map("company_permission_grants")
+}
+
+model CompanyAuditLog {
+  id        String   @id @default(cuid())
+  companyId String?  @map("company_id")
+  actorId   String?  @map("actor_id")
+  eventType String   @map("event_type")
+  message   String
+  metadataJson Json? @map("metadata_json")
+  createdAt DateTime @default(now()) @map("created_at")
+  company   Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, createdAt])
+  @@index([eventType])
+  @@map("company_audit_logs")
 }
 
 model Contact {
@@ -565,3 +742,4 @@ model TimelineEvent {
   @@index([referenceType, referenceId])
   @@map("timeline_events")
 }
+

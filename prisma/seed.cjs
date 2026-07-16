@@ -10,13 +10,18 @@ function hashPassword(password) {
 }
 
 async function main() {
-  const email = process.env.SEED_ADMIN_EMAIL || "admin@panel.local";
-  const password = process.env.SEED_ADMIN_PASSWORD || "Admin123!";
+  const email = String(process.env.SEED_ADMIN_EMAIL ?? "").trim().toLowerCase();
+  const password = String(process.env.SEED_ADMIN_PASSWORD ?? "");
+
+  if (!email || !password) {
+    throw new Error("SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD are required.");
+  }
 
   await prisma.user.upsert({
     where: { email },
     update: {
       role: "ADMIN",
+      platformRole: "COMPANY_ADMIN",
       status: "ACTIVE"
     },
     create: {
@@ -24,11 +29,12 @@ async function main() {
       email,
       passwordHash: hashPassword(password),
       role: "ADMIN",
+      platformRole: "COMPANY_ADMIN",
       status: "ACTIVE"
     }
   });
 
-  console.log(`Admin hazır: ${email}`);
+  console.log("Admin account ready.");
 }
 
 main()
