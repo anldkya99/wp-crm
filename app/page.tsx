@@ -639,10 +639,14 @@ export default function Home() {
     }
     setUser(payload.user);
     window.sessionStorage.setItem("whatsapp-ops-user", JSON.stringify(payload.user));
+    if (payload.redirectTo) {
+      window.location.assign(payload.redirectTo);
+    }
   }
 
   function logout() {
     window.sessionStorage.removeItem("whatsapp-ops-user");
+    void fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
     setActive("Operation Pact Home");
   }

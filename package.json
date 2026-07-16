@@ -11,7 +11,8 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "db:seed": "node prisma/seed.cjs"
+    "db:seed": "node prisma/seed.cjs",
+    "bootstrap:op-ceo": "node scripts/bootstrap-op-ceo.cjs"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
