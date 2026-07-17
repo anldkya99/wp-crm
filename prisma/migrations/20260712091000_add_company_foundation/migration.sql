@@ -1,4 +1,4 @@
-﻿CREATE TABLE "companies" (
+CREATE TABLE "companies" (
   "id" TEXT NOT NULL,
   "name" TEXT NOT NULL,
   "slug" TEXT NOT NULL,
