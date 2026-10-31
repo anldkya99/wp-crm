@@ -1,24 +1,25 @@
 import { DashboardCard, DashboardSection } from "@/app/opceo/_components/dashboard-card";
+import { getServerTranslator } from "@/lib/platform/localization/server";
 
-export default function OpCeoPanelPage() {
+export default async function OpCeoPanelPage() {
+  const t = await getServerTranslator();
+
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C8A45D]">Platform Foundation</p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">OP CEO Control Center</h1>
-      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#9CA8A8]">
-        Global platform administration foundation for Operation Pact. This dashboard is structural only; business data and module operations will arrive in later sprints.
-      </p>
+      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C8A45D]">{t("opceo.panel.eyebrow")}</p>
+      <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">{t("opceo.title")}</h1>
+      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#9CA8A8]">{t("opceo.panel.description")}</p>
 
-      <DashboardSection title="Platform Overview">
-        <DashboardCard title="Platform Overview" value="Ready" description="Global platform control surface registered and protected by the Permission Engine." />
-        <DashboardCard title="Companies" value="Foundation" description="Company control entry is available without company management workflows." />
-        <DashboardCard title="Product Center" value="Entry" description="Roadmap center route is prepared as an empty platform module." />
+      <DashboardSection title={t("opceo.panel.platformOverview")}>
+        <DashboardCard title={t("opceo.panel.platformOverview")} value={t("opceo.ready")} description={t("opceo.panel.platformOverview.description")} />
+        <DashboardCard title={t("opceo.nav.companies")} value={t("opceo.foundation")} description={t("opceo.panel.companies.description")} />
+        <DashboardCard title={t("opceo.nav.productCenter")} value={t("opceo.entry")} description={t("opceo.panel.productCenter.description")} />
       </DashboardSection>
 
-      <DashboardSection title="Control Areas">
-        <DashboardCard title="Platform Health" value="Pending" description="Health surfaces are reserved for future platform runtime indicators." />
-        <DashboardCard title="Audit" value="Empty" description="Audit entry exists for future platform-wide accountability records." />
-        <DashboardCard title="System Settings" value="Empty" description="Settings route is prepared without mutable configuration." />
+      <DashboardSection title={t("opceo.panel.controlAreas")}>
+        <DashboardCard title={t("opceo.panel.platformHealth")} value={t("opceo.pending")} description={t("opceo.panel.platformHealth.description")} />
+        <DashboardCard title={t("opceo.nav.audit")} value={t("opceo.empty")} description={t("opceo.panel.audit.description")} />
+        <DashboardCard title={t("opceo.panel.systemSettings")} value={t("opceo.empty")} description={t("opceo.panel.systemSettings.description")} />
       </DashboardSection>
     </div>
   );

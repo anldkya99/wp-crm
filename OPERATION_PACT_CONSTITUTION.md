@@ -45,3 +45,33 @@ Next Sprint
 ```
 
 This rule applies to all future sprints.
+
+## Constitution Rule #8 - Module Boundary Isolation
+
+Platform modules must not directly access another module's persistence data, Prisma model, repository, or private storage adapter.
+
+Cross-module interaction must use official platform contracts such as the Service Framework, Event Framework, declared extension points, or other approved runtime interfaces.
+
+Module core definitions, module option types, and company/runtime business data remain separate layers.
+
+## Constitution Rule #7 - Platform-Wide Localization Standard
+
+Operation Pact permanently separates programming language, development interface language, and user interface language.
+
+- Programming language, technical identifiers, source code symbols, APIs, database schemas, routes, permissions, roles, service names, event names, workflow identifiers, and internal architecture remain English.
+- The development administration interface defaults to Turkish.
+- User-facing language is selectable through the centralized localization architecture.
+- All future user-visible text must use translation resources instead of hardcoded strings.
+- English remains the fallback language when a translation key is missing.
+
+## Constitution Rule #9 - Database Promotion Policy
+
+No migration may be tried for the first time directly against a production database.
+
+All migrations must first be applied successfully and verified against the OP Test Server database:
+
+```text
+operation_pact_test
+```
+
+A migration that has not been verified in the test environment may not be promoted to production.

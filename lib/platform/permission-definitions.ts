@@ -37,6 +37,13 @@ export const platformPermissionDefinitions = {
   ProductCenter: {
     accessModule: "product_center:access_module",
     manageModule: "product_center:manage_module"
+  },
+  ModuleOptions: {
+    read: "modules.options.read",
+    write: "modules.options.write",
+    archive: "modules.options.archive",
+    managePlatform: "modules.options.managePlatform",
+    manageCompany: "modules.options.manageCompany"
   }
 } as const;
 
@@ -79,7 +86,12 @@ export const platformRolePermissionGrants: Record<PlatformRole, readonly Platfor
     platformPermissionDefinitions.Engineering.accessModule,
     platformPermissionDefinitions.Engineering.manageModule,
     platformPermissionDefinitions.ProductCenter.accessModule,
-    platformPermissionDefinitions.ProductCenter.manageModule
+    platformPermissionDefinitions.ProductCenter.manageModule,
+    platformPermissionDefinitions.ModuleOptions.read,
+    platformPermissionDefinitions.ModuleOptions.write,
+    platformPermissionDefinitions.ModuleOptions.archive,
+    platformPermissionDefinitions.ModuleOptions.managePlatform,
+    platformPermissionDefinitions.ModuleOptions.manageCompany
   ],
   COMPANY_BOSS: [
     platformPermissionDefinitions.Company.accessModule,
@@ -94,7 +106,11 @@ export const platformRolePermissionGrants: Record<PlatformRole, readonly Platfor
     platformPermissionDefinitions.Management.manageOperators,
     platformPermissionDefinitions.Management.manageDepartments,
     platformPermissionDefinitions.Analytics.accessModule,
-    platformPermissionDefinitions.Analytics.viewAnalytics
+    platformPermissionDefinitions.Analytics.viewAnalytics,
+    platformPermissionDefinitions.ModuleOptions.read,
+    platformPermissionDefinitions.ModuleOptions.write,
+    platformPermissionDefinitions.ModuleOptions.archive,
+    platformPermissionDefinitions.ModuleOptions.manageCompany
   ],
   COMPANY_ADMIN: [
     platformPermissionDefinitions.Company.accessModule,
@@ -109,7 +125,11 @@ export const platformRolePermissionGrants: Record<PlatformRole, readonly Platfor
     platformPermissionDefinitions.Management.manageOperators,
     platformPermissionDefinitions.Management.manageDepartments,
     platformPermissionDefinitions.Analytics.accessModule,
-    platformPermissionDefinitions.Analytics.viewAnalytics
+    platformPermissionDefinitions.Analytics.viewAnalytics,
+    platformPermissionDefinitions.ModuleOptions.read,
+    platformPermissionDefinitions.ModuleOptions.write,
+    platformPermissionDefinitions.ModuleOptions.archive,
+    platformPermissionDefinitions.ModuleOptions.manageCompany
   ],
   DEPARTMENT_ADMIN: [
     platformPermissionDefinitions.Department.accessModule,

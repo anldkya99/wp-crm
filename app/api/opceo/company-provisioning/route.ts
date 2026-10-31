@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerTranslator } from "@/lib/platform/localization/server";
 import { createPermissionResolver } from "@/lib/platform/permission-engine";
 import { provisionCompany, ProvisioningError, type CompanyProvisioningRequest } from "@/lib/platform/provisioning-engine";
 import { verifyPlatformSessionToken } from "@/lib/platform/server-session";
@@ -19,9 +20,10 @@ async function getProvisioningResolver() {
 }
 
 export async function POST(request: Request) {
+  const t = await getServerTranslator();
   const { claims, resolver } = await getProvisioningResolver();
   if (!resolver.canAccessModule("OP_CEO") || !resolver.canManageCompany()) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    return NextResponse.json({ error: t("errors.unauthorized") }, { status: 403 });
   }
 
   try {
@@ -39,6 +41,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message, code: error.code }, { status: 400 });
     }
 
-    return NextResponse.json({ error: "Company provisioning failed.", code: "TRANSACTION_FAILURE" }, { status: 500 });
+    return NextResponse.json({ error: t("opceo.company.provisioningFailed"), code: "TRANSACTION_FAILURE" }, { status: 500 });
   }
 }

@@ -6,6 +6,7 @@ import { getPlatformCapabilityFramework } from "@/lib/platform/capabilities/capa
 import { licensePackages, type LicensePackageKey } from "@/lib/platform/license-packages";
 import { getPlatformLicenseEngine } from "@/lib/platform/licensing/license-engine";
 import { industryProfiles, type IndustryProfileKey } from "@/lib/platform/industry-profiles";
+import { usePlatformLocalization } from "@/lib/platform/localization/client";
 import { getPlatformModuleFramework } from "@/lib/platform/modules/module-framework";
 
 type ProvisioningResult = {
@@ -39,6 +40,7 @@ const registeredFeatureFlags = Array.from(
 );
 
 export function CompanyCreator() {
+  const { t } = usePlatformLocalization();
   const [company, setCompany] = useState({
     name: "",
     industryProfile: "custom" as IndustryProfileKey,
@@ -95,7 +97,7 @@ export function CompanyCreator() {
     setLoading(false);
 
     if (!response.ok) {
-      setError(payload.error ?? "Company provisioning failed.");
+      setError(payload.error ?? t("opceo.company.provisioningFailed"));
       return;
     }
 
@@ -104,45 +106,43 @@ export function CompanyCreator() {
 
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C8A45D]">Company Provisioning</p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">Company Creator</h1>
-      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#9CA8A8]">
-        Provision a company environment through the centralized Company Provisioning Engine. The workflow runs inside one database transaction.
-      </p>
+      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C8A45D]">{t("opceo.company.eyebrow")}</p>
+      <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">{t("opceo.company.title")}</h1>
+      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#9CA8A8]">{t("opceo.company.description")}</p>
 
-      <DashboardSection title="Provisioning Scope">
-        <DashboardCard title="Transaction" value="Single" description="Company, structure, users, modules, flags, settings, permissions and audit are created atomically." />
-        <DashboardCard title="Industry Profile" value={selectedProfile.name} description="Profiles are configuration presets only and contain no platform business logic." />
-        <DashboardCard title="License" value={selectedLicense.name} description="Feature flags and modules are constrained by the selected license package." />
+      <DashboardSection title={t("opceo.company.scope")}>
+        <DashboardCard title={t("opceo.company.transaction")} value={t("opceo.single")} description={t("opceo.company.transaction.description")} />
+        <DashboardCard title={t("opceo.company.industryProfile")} value={selectedProfile.name} description={t("opceo.company.industryProfile.description")} />
+        <DashboardCard title={t("opceo.company.license")} value={selectedLicense.name} description={t("opceo.company.license.description")} />
       </DashboardSection>
 
       <form className="mt-8 space-y-5" onSubmit={submit}>
-        <WizardPanel title="Step 1 - Company Information">
-          <Input label="Company Name" value={company.name} onChange={(value) => setCompany({ ...company, name: value })} required />
-          <Select label="Industry Profile" value={company.industryProfile} options={Object.values(industryProfiles).map((profile) => ({ label: profile.name, value: profile.key }))} onChange={(value) => setCompany({ ...company, industryProfile: value as IndustryProfileKey })} />
-          <Select label="License Package" value={company.licensePackage} options={Object.values(licensePackages).map((license) => ({ label: license.name, value: license.key }))} onChange={(value) => setCompany({ ...company, licensePackage: value as LicensePackageKey })} />
-          <Input label="Country" value={company.country} onChange={(value) => setCompany({ ...company, country: value })} />
-          <Input label="Timezone" value={company.timezone} onChange={(value) => setCompany({ ...company, timezone: value })} />
-          <Input label="Language" value={company.language} onChange={(value) => setCompany({ ...company, language: value })} />
-          <Input label="Currency" value={company.currency} onChange={(value) => setCompany({ ...company, currency: value })} />
-          <Input label="Company Logo URL" value={company.logoUrl} onChange={(value) => setCompany({ ...company, logoUrl: value })} />
+        <WizardPanel title={t("opceo.company.step.company")}>
+          <Input label={t("opceo.company.fields.companyName")} value={company.name} onChange={(value) => setCompany({ ...company, name: value })} required />
+          <Select label={t("opceo.company.industryProfile")} value={company.industryProfile} options={Object.values(industryProfiles).map((profile) => ({ label: profile.name, value: profile.key }))} onChange={(value) => setCompany({ ...company, industryProfile: value as IndustryProfileKey })} />
+          <Select label={t("opceo.company.fields.licensePackage")} value={company.licensePackage} options={Object.values(licensePackages).map((license) => ({ label: license.name, value: license.key }))} onChange={(value) => setCompany({ ...company, licensePackage: value as LicensePackageKey })} />
+          <Input label={t("opceo.company.fields.country")} value={company.country} onChange={(value) => setCompany({ ...company, country: value })} />
+          <Input label={t("opceo.company.fields.timezone")} value={company.timezone} onChange={(value) => setCompany({ ...company, timezone: value })} />
+          <Input label={t("opceo.company.fields.language")} value={company.language} onChange={(value) => setCompany({ ...company, language: value })} />
+          <Input label={t("opceo.company.fields.currency")} value={company.currency} onChange={(value) => setCompany({ ...company, currency: value })} />
+          <Input label={t("opceo.company.fields.logoUrl")} value={company.logoUrl} onChange={(value) => setCompany({ ...company, logoUrl: value })} />
         </WizardPanel>
 
-        <WizardPanel title="Step 2 - Company Owner">
-          <Input label="Full Name" value={owner.fullName} onChange={(value) => setOwner({ ...owner, fullName: value })} required />
-          <Input label="Email" type="email" value={owner.email} onChange={(value) => setOwner({ ...owner, email: value })} required />
-          <Input label="Password" type="password" value={owner.password} onChange={(value) => setOwner({ ...owner, password: value })} required />
-          <Input label="Phone Number" value={owner.phoneNumber} onChange={(value) => setOwner({ ...owner, phoneNumber: value })} />
+        <WizardPanel title={t("opceo.company.step.owner")}>
+          <Input label={t("opceo.company.fields.fullName")} value={owner.fullName} onChange={(value) => setOwner({ ...owner, fullName: value })} required />
+          <Input label={t("opceo.company.fields.email")} type="email" value={owner.email} onChange={(value) => setOwner({ ...owner, email: value })} required />
+          <Input label={t("opceo.company.fields.password")} type="password" value={owner.password} onChange={(value) => setOwner({ ...owner, password: value })} required />
+          <Input label={t("opceo.company.fields.phoneNumber")} value={owner.phoneNumber} onChange={(value) => setOwner({ ...owner, phoneNumber: value })} />
         </WizardPanel>
 
-        <WizardPanel title="Step 3 - Organization Structure">
-          <Input label="Company Admin count" type="number" value={String(organization.companyAdminCount)} onChange={(value) => setOrganization({ ...organization, companyAdminCount: Number(value) })} />
-          <Input label="Department Admin count" type="number" value={String(organization.departmentAdminCount)} onChange={(value) => setOrganization({ ...organization, departmentAdminCount: Number(value) })} />
-          <Input label="Operator count" type="number" value={String(organization.operatorCount)} onChange={(value) => setOrganization({ ...organization, operatorCount: Number(value) })} />
-          <p className="text-xs leading-5 text-[#9CA8A8]">Departments generated from profile: {selectedProfile.departments.join(", ")}</p>
+        <WizardPanel title={t("opceo.company.step.organization")}>
+          <Input label={t("opceo.company.fields.companyAdminCount")} type="number" value={String(organization.companyAdminCount)} onChange={(value) => setOrganization({ ...organization, companyAdminCount: Number(value) })} />
+          <Input label={t("opceo.company.fields.departmentAdminCount")} type="number" value={String(organization.departmentAdminCount)} onChange={(value) => setOrganization({ ...organization, departmentAdminCount: Number(value) })} />
+          <Input label={t("opceo.company.fields.operatorCount")} type="number" value={String(organization.operatorCount)} onChange={(value) => setOrganization({ ...organization, operatorCount: Number(value) })} />
+          <p className="text-xs leading-5 text-[#9CA8A8]">{t("opceo.company.departmentsFromProfile", { departments: selectedProfile.departments.join(", ") })}</p>
         </WizardPanel>
 
-        <WizardPanel title="Step 4 - Feature Flags">
+        <WizardPanel title={t("opceo.company.step.features")}>
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {registeredFeatureFlags.map((featureFlag) => {
               const allowed = allowedFeatures.has(featureFlag.key);
@@ -164,11 +164,18 @@ export function CompanyCreator() {
         {error && <p className="rounded-lg border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-200">{error}</p>}
         {result && (
           <p className="rounded-lg border border-emerald-400/30 bg-emerald-400/10 p-3 text-sm text-emerald-200">
-            Provisioned {result.companySlug}: {result.departmentsCreated} departments, {result.usersCreated} users, {result.modulesEnabled} modules, {result.capabilitiesEnabled} capabilities, {result.auditRecordsCreated} audit events.
+            {t("opceo.company.result", {
+              companySlug: result.companySlug,
+              departments: result.departmentsCreated,
+              users: result.usersCreated,
+              modules: result.modulesEnabled,
+              capabilities: result.capabilitiesEnabled,
+              audit: result.auditRecordsCreated
+            })}
           </p>
         )}
         <button className="rounded-full border border-[#C8A45D]/50 bg-[#C8A45D] px-5 py-2 text-sm font-semibold text-[#05080A] transition hover:bg-[#D9B96D]" disabled={loading}>
-          {loading ? "Provisioning..." : "Provision Company"}
+          {loading ? t("opceo.company.provisioning") : t("opceo.company.create")}
         </button>
       </form>
     </div>

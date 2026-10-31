@@ -1,7 +1,9 @@
 import { DashboardCard, DashboardSection } from "@/app/opceo/_components/dashboard-card";
 import { getPlatformCapabilityFramework } from "@/lib/platform/capabilities/capability-framework";
+import { getServerTranslator } from "@/lib/platform/localization/server";
 
-export default function CapabilitiesFoundationPage() {
+export default async function CapabilitiesFoundationPage() {
+  const t = await getServerTranslator();
   const framework = getPlatformCapabilityFramework();
   const defaultEnabledCount = framework.capabilities.filter((capability) => capability.defaultEnabled).length;
   const dependencyCount = framework.capabilities.filter((capability) => capability.dependencies.length > 0).length;
@@ -9,11 +11,9 @@ export default function CapabilitiesFoundationPage() {
 
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C8A45D]">Capability Framework</p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">Capabilities</h1>
-      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#9CA8A8]">
-        Registry-backed foundation for independently licensed, configured, audited, and extended module capabilities.
-      </p>
+      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C8A45D]">{t("opceo.framework.capability.eyebrow")}</p>
+      <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">{t("opceo.framework.capability.title")}</h1>
+      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#9CA8A8]">{t("opceo.framework.capability.description")}</p>
 
       <DashboardSection title="Registry">
         <DashboardCard title="Registered" value={String(framework.capabilities.length)} description="Capabilities discovered through the centralized Capability Registry." />
@@ -37,8 +37,8 @@ export default function CapabilitiesFoundationPage() {
           >
             <div className="space-y-2 text-xs leading-5 text-[#9CA8A8]">
               <p>Permission group: {capability.permissionGroup}</p>
-              <p>Feature flags: {capability.featureFlags.map((featureFlag) => featureFlag.key).join(", ") || "none"}</p>
-              <p>Dependencies: {capability.dependencies.join(", ") || "none"}</p>
+              <p>{t("opceo.framework.featureFlagsLabel")}: {capability.featureFlags.map((featureFlag) => featureFlag.key).join(", ") || t("opceo.framework.featureFlagsNone")}</p>
+              <p>{t("opceo.framework.dependenciesLabel")}: {capability.dependencies.join(", ") || t("opceo.framework.dependenciesNone")}</p>
             </div>
           </DashboardCard>
         ))}

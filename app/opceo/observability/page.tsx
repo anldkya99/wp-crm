@@ -1,18 +1,18 @@
 import { DashboardCard, DashboardSection } from "@/app/opceo/_components/dashboard-card";
+import { getServerTranslator } from "@/lib/platform/localization/server";
 import { getPlatformObservabilityFramework } from "@/lib/platform/observability/observability-framework";
 
-export default function ObservabilityCenterFoundationPage() {
+export default async function ObservabilityCenterFoundationPage() {
+  const t = await getServerTranslator();
   const observability = getPlatformObservabilityFramework();
   const degraded = observability.health.filter((entry) => entry.status === "degraded");
   const unhealthy = observability.health.filter((entry) => entry.status === "unhealthy");
 
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C8A45D]">Platform Observability</p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">Observability Center</h1>
-      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#9CA8A8]">
-        Foundation for aggregated framework health, metrics, diagnostics, runtime monitoring context, and future monitoring contracts.
-      </p>
+      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C8A45D]">{t("opceo.framework.observability.eyebrow")}</p>
+      <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">{t("opceo.framework.observability.title")}</h1>
+      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#9CA8A8]">{t("opceo.framework.observability.description")}</p>
 
       <DashboardSection title="Platform Health">
         <DashboardCard title="Status" value={observability.snapshot.status} description="Aggregated health status from registered observability contracts." />

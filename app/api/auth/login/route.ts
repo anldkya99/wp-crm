@@ -1,23 +1,27 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { platformSessionCookieName, platformSessionMaxAgeSeconds } from "@/lib/platform/session-token";
-import { createPlatformSessionToken } from "@/lib/platform/server-session";
+import { createTranslator, resolvePlatformLocale } from "@/lib/platform/localization";
+import { platformLocaleCookieName } from "@/lib/platform/localization/locales";
 import { createPermissionResolver } from "@/lib/platform/permission-engine";
-import { normalizePlatformRole, userRoleLabels } from "@/lib/status";
+import { createPlatformSessionToken } from "@/lib/platform/server-session";
+import { platformSessionCookieName, platformSessionMaxAgeSeconds } from "@/lib/platform/session-token";
 import { verifyPassword } from "@/lib/server/password";
+import { normalizePlatformRole, userRoleLabels } from "@/lib/status";
 
 export async function POST(request: Request) {
+  const locale = request.headers.get("cookie")?.match(new RegExp(`${platformLocaleCookieName}=([^;]+)`))?.[1];
+  const t = createTranslator(resolvePlatformLocale(locale));
   const body = await request.json();
   const email = String(body.email ?? "").trim().toLowerCase();
   const password = String(body.password ?? "");
 
   if (!email || !password) {
-    return NextResponse.json({ error: "E-posta ve şifre zorunlu." }, { status: 400 });
+    return NextResponse.json({ error: t("auth.login.emailPasswordRequired") }, { status: 400 });
   }
 
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user || user.status !== "ACTIVE" || !verifyPassword(password, user.passwordHash)) {
-    return NextResponse.json({ error: "Giriş bilgileri hatalı." }, { status: 401 });
+    return NextResponse.json({ error: t("auth.login.invalidCredentials") }, { status: 401 });
   }
 
   const sessionUser = {

@@ -1,7 +1,9 @@
 import { DashboardCard, DashboardSection } from "@/app/opceo/_components/dashboard-card";
 import { getPlatformIdentityFramework } from "@/lib/platform/identity/identity-framework";
+import { getServerTranslator } from "@/lib/platform/localization/server";
 
-export default function IdentityCenterFoundationPage() {
+export default async function IdentityCenterFoundationPage() {
+  const t = await getServerTranslator();
   const identityFramework = getPlatformIdentityFramework();
   const activeIdentities = identityFramework.identities.filter((identity) => identity.lifecycle === "active");
   const aiIdentities = identityFramework.identities.filter((identity) => identity.principalType.startsWith("AI_"));
@@ -9,11 +11,9 @@ export default function IdentityCenterFoundationPage() {
 
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C8A45D]">Identity Framework</p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">Identity Center</h1>
-      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#9CA8A8]">
-        Foundation for unified identities, principals, lifecycle states, runtime identity context, service identities, AI identities, and future authentication providers.
-      </p>
+      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C8A45D]">{t("opceo.framework.identity.eyebrow")}</p>
+      <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">{t("opceo.framework.identity.title")}</h1>
+      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#9CA8A8]">{t("opceo.framework.identity.description")}</p>
 
       <DashboardSection title="Identity Runtime">
         <DashboardCard title="Identities" value={String(identityFramework.identities.length)} description="Identity manifests registered through the centralized Identity Registry." />

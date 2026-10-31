@@ -1,7 +1,9 @@
 import { DashboardCard, DashboardSection } from "@/app/opceo/_components/dashboard-card";
 import { getPlatformConfigurationEngine } from "@/lib/platform/configuration/configuration-engine";
+import { getServerTranslator } from "@/lib/platform/localization/server";
 
-export default function ConfigurationFoundationPage() {
+export default async function ConfigurationFoundationPage() {
+  const t = await getServerTranslator();
   const configuration = getPlatformConfigurationEngine();
   const schemasByScope = configuration.schemas.reduce<Record<string, number>>((counts, schema) => {
     counts[schema.scope] = (counts[schema.scope] ?? 0) + 1;
@@ -19,11 +21,9 @@ export default function ConfigurationFoundationPage() {
 
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C8A45D]">Configuration Framework</p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">Configuration Center</h1>
-      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#9CA8A8]">
-        Foundation for centralized schemas, defaults, inheritance, validation, runtime context, and future configuration history.
-      </p>
+      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C8A45D]">{t("opceo.framework.configuration.eyebrow")}</p>
+      <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">{t("opceo.framework.configuration.title")}</h1>
+      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#9CA8A8]">{t("opceo.framework.configuration.description")}</p>
 
       <DashboardSection title="Registry">
         <DashboardCard title="Schemas" value={String(configuration.schemas.length)} description="Configuration schemas registered through the centralized Configuration Registry." />

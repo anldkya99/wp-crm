@@ -1,7 +1,9 @@
 import { DashboardCard, DashboardSection } from "@/app/opceo/_components/dashboard-card";
+import { getServerTranslator } from "@/lib/platform/localization/server";
 import { getPlatformLicenseEngine } from "@/lib/platform/licensing/license-engine";
 
-export default function LicenseCenterFoundationPage() {
+export default async function LicenseCenterFoundationPage() {
+  const t = await getServerTranslator();
   const licensing = getPlatformLicenseEngine();
   const packageCount = licensing.packages.length;
   const entitlementSamples = licensing.packages.map((licensePackage) =>
@@ -12,11 +14,9 @@ export default function LicenseCenterFoundationPage() {
 
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C8A45D]">Licensing Framework</p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">License Center</h1>
-      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#9CA8A8]">
-        Foundation for centralized packages, feature management, entitlement resolution, package hierarchy, and runtime license context.
-      </p>
+      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C8A45D]">{t("opceo.framework.license.eyebrow")}</p>
+      <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">{t("opceo.framework.license.title")}</h1>
+      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#9CA8A8]">{t("opceo.framework.license.description")}</p>
 
       <DashboardSection title="Licensing">
         <DashboardCard title="Packages" value={String(packageCount)} description="License packages registered through the centralized License Registry." />

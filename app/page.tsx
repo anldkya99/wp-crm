@@ -36,6 +36,7 @@ import {
 import clsx from "clsx";
 import QRCode from "qrcode";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { usePlatformLocalization } from "@/lib/platform/localization/client";
 import { systemGuideLastUpdate, systemGuideSections, systemPrinciples } from "@/lib/system-guide";
 import type { AppData, Contact, MessageTemplate, RequestItem, RequestStatus, RequestType, SessionUser } from "@/types/domain";
 
@@ -187,6 +188,7 @@ const emptyRequest = {
 };
 
 export default function Home() {
+  const { locale, setLocale, supportedLocales, t } = usePlatformLocalization();
   const [user, setUser] = useState<SessionUser | null>(null);
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [loginError, setLoginError] = useState("");
@@ -634,7 +636,7 @@ export default function Home() {
     });
     const payload = await response.json();
     if (!response.ok) {
-      setLoginError(payload.error ?? "Giriş başarısız.");
+      setLoginError(payload.error ?? t("auth.login.failed"));
       return;
     }
     setUser(payload.user);
@@ -1525,22 +1527,32 @@ export default function Home() {
         <section className="surface-glass shadow-op-lg w-full max-w-md rounded-xl p-6">
           <div className="mb-8 text-center">
             <p className="text-xs font-medium uppercase tracking-[0.34em] text-[#9CA8A8]">Operation Pact</p>
-            <h1 className="mt-3 text-3xl font-bold tracking-wide text-[#F4F1EA]">OP Login</h1>
-            <p className="mt-3 text-sm text-[#9CA8A8]">Secure Enterprise Access</p>
+            <h1 className="mt-3 text-3xl font-bold tracking-wide text-[#F4F1EA]">{t("auth.login.title")}</h1>
+            <p className="mt-3 text-sm text-[#9CA8A8]">{t("auth.login.subtitle")}</p>
             <div className="mx-auto mt-5 h-px w-32 bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
           </div>
+          <label className="mb-4 block text-xs font-semibold uppercase tracking-[0.18em] text-[#9CA8A8]">
+            <span>{t("language.selector.label")}</span>
+            <select className="mt-2 w-full rounded-lg border border-white/10 bg-[#071113] px-3 py-2 text-sm normal-case tracking-normal text-[#F4F1EA] outline-none transition focus:border-gold" value={locale} onChange={(event) => setLocale(event.target.value as typeof locale)}>
+              {supportedLocales.map((item) => (
+                <option key={item.code} value={item.code}>
+                  {t(`language.selector.${item.code}`)}
+                </option>
+              ))}
+            </select>
+          </label>
           <form className="space-y-4" onSubmit={login}>
             <label>
-              <span className="label">E-posta</span>
+              <span className="label">{t("auth.login.email")}</span>
               <input className="field" type="email" value={loginForm.email} onChange={(event) => setLoginForm({ ...loginForm, email: event.target.value })} required />
             </label>
             <label>
-              <span className="label">Şifre</span>
+              <span className="label">{t("auth.login.password")}</span>
               <input className="field" type="password" value={loginForm.password} onChange={(event) => setLoginForm({ ...loginForm, password: event.target.value })} required />
             </label>
             {loginError && <p className="rounded-md border border-coral/30 bg-coral/10 p-3 text-sm text-red-200">{loginError}</p>}
             <button className="btn-op-primary w-full" type="submit">
-              <UserRound size={17} /> Panele Gir
+              <UserRound size={17} /> {t("auth.login.submit")}
             </button>
           </form>
         </section>

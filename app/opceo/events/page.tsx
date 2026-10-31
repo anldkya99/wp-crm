@@ -1,17 +1,17 @@
 import { DashboardCard, DashboardSection } from "@/app/opceo/_components/dashboard-card";
 import { getPlatformEventFramework } from "@/lib/platform/events/event-framework";
+import { getServerTranslator } from "@/lib/platform/localization/server";
 
-export default function EventCenterFoundationPage() {
+export default async function EventCenterFoundationPage() {
+  const t = await getServerTranslator();
   const eventFramework = getPlatformEventFramework();
   const categories = Array.from(new Set(eventFramework.events.map((event) => event.category)));
 
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C8A45D]">Platform Event Framework</p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">Event Center</h1>
-      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#9CA8A8]">
-        Foundation for standardized event manifests, publishing, subscriptions, validation, runtime dispatch, and future platform observability.
-      </p>
+      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C8A45D]">{t("opceo.framework.event.eyebrow")}</p>
+      <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">{t("opceo.framework.event.title")}</h1>
+      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#9CA8A8]">{t("opceo.framework.event.description")}</p>
 
       <DashboardSection title="Event Bus">
         <DashboardCard title="Registered Events" value={String(eventFramework.metadata.eventCount)} description="Events are registered through the centralized Event Registry." />

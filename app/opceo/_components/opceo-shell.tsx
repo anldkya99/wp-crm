@@ -1,16 +1,23 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { LanguageSelector } from "@/app/opceo/_components/language-selector";
 import type { OpCeoNavigationItem } from "@/lib/platform/opceo-navigation";
+import { getServerTranslator } from "@/lib/platform/localization/server";
 
-export function OpCeoShell({ children, navigation }: { children: ReactNode; navigation: OpCeoNavigationItem[] }) {
+export async function OpCeoShell({ children, navigation }: { children: ReactNode; navigation: OpCeoNavigationItem[] }) {
+  const t = await getServerTranslator();
+
   return (
     <main className="min-h-screen bg-[#05080A] text-[#F4F1EA]">
       <div className="mx-auto flex min-h-screen max-w-7xl">
         <aside className="hidden w-72 shrink-0 border-r border-[#1C3434] bg-[#071113] px-6 py-8 lg:block">
           <Link href="/opceo/panel" className="block">
-            <p className="text-xs font-semibold uppercase tracking-[0.34em] text-[#C8A45D]">Operation Pact</p>
-            <h1 className="mt-3 text-xl font-semibold tracking-tight">OP CEO Control Center</h1>
+            <p className="text-xs font-semibold uppercase tracking-[0.34em] text-[#C8A45D]">{t("opceo.brand")}</p>
+            <h1 className="mt-3 text-xl font-semibold tracking-tight">{t("opceo.title")}</h1>
           </Link>
+          <div className="mt-8">
+            <LanguageSelector />
+          </div>
           <nav className="mt-10 space-y-2">
             {navigation.map((item) => (
               <Link
@@ -26,7 +33,7 @@ export function OpCeoShell({ children, navigation }: { children: ReactNode; navi
             href="/"
             className="mt-10 inline-flex rounded-full border border-[#C8A45D]/40 px-4 py-2 text-sm font-semibold text-[#C8A45D] transition hover:border-[#C8A45D] hover:bg-[#C8A45D]/10"
           >
-            CRM Home
+            {t("opceo.crmHome")}
           </Link>
         </aside>
         <section className="min-w-0 flex-1 px-5 py-6 md:px-8 lg:px-10">

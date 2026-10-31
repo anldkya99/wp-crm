@@ -21,6 +21,8 @@ export type PermissionResolver = {
   canManageOperators: () => boolean;
   canViewAnalytics: () => boolean;
   canManageDepartments: () => boolean;
+  canManagePlatformModuleOptions: () => boolean;
+  canManageCompanyModuleOptions: () => boolean;
   canManageRole: (targetRole: PlatformRole | null | undefined) => boolean;
   isAtLeast: (minimumRole: PlatformRole) => boolean;
   permissions: readonly PlatformPermissionKey[];
@@ -69,6 +71,8 @@ export function createPermissionResolver(subject: PermissionSubject): Permission
     canViewAnalytics: () => can(platformPermissionDefinitions.Analytics.viewAnalytics),
     canManageDepartments: () =>
       can(platformPermissionDefinitions.Department.manageDepartments) || can(platformPermissionDefinitions.Management.manageDepartments),
+    canManagePlatformModuleOptions: () => can(platformPermissionDefinitions.ModuleOptions.managePlatform),
+    canManageCompanyModuleOptions: () => can(platformPermissionDefinitions.ModuleOptions.manageCompany),
     canManageRole: (targetRole) => canManagePlatformRole(subject.platformRole, targetRole),
     isAtLeast: (minimumRole) => isPlatformRoleAtLeast(subject.platformRole, minimumRole),
     permissions,

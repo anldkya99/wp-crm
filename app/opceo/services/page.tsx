@@ -1,7 +1,9 @@
 import { DashboardCard, DashboardSection } from "@/app/opceo/_components/dashboard-card";
+import { getServerTranslator } from "@/lib/platform/localization/server";
 import { getPlatformServiceFramework } from "@/lib/platform/services/service-framework";
 
-export default function ServiceCenterFoundationPage() {
+export default async function ServiceCenterFoundationPage() {
+  const t = await getServerTranslator();
   const serviceFramework = getPlatformServiceFramework();
   const activeServices = serviceFramework.services.filter((service) => service.lifecycle === "active");
   const dependencyCount = serviceFramework.services.filter((service) => service.dependencies.length > 0).length;
@@ -9,11 +11,9 @@ export default function ServiceCenterFoundationPage() {
 
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C8A45D]">Platform Service Framework</p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">Service Center</h1>
-      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#9CA8A8]">
-        Foundation for registered platform services, dependency resolution, standardized service context, lifecycle states, workflow execution, and event-driven service invocation.
-      </p>
+      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C8A45D]">{t("opceo.framework.service.eyebrow")}</p>
+      <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">{t("opceo.framework.service.title")}</h1>
+      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#9CA8A8]">{t("opceo.framework.service.description")}</p>
 
       <DashboardSection title="Service Framework">
         <DashboardCard title="Registered Services" value={String(serviceFramework.services.length)} description="Services are discoverable through the centralized Service Registry." />

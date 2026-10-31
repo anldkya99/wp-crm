@@ -1,18 +1,18 @@
 import { DashboardCard, DashboardSection } from "@/app/opceo/_components/dashboard-card";
+import { getServerTranslator } from "@/lib/platform/localization/server";
 import { getPlatformWorkflowEngine } from "@/lib/platform/workflows/workflow-engine";
 
-export default function WorkflowCenterFoundationPage() {
+export default async function WorkflowCenterFoundationPage() {
+  const t = await getServerTranslator();
   const workflowEngine = getPlatformWorkflowEngine();
   const enabledWorkflows = workflowEngine.workflows.filter((workflow) => workflow.enabled);
   const eventDrivenWorkflows = workflowEngine.workflows.filter((workflow) => Boolean(workflow.trigger.eventId));
 
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C8A45D]">Workflow Framework</p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">Workflow Center</h1>
-      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#9CA8A8]">
-        Foundation for event-driven workflows, reusable triggers, reusable conditions, reusable actions, isolated execution, and future automation orchestration.
-      </p>
+      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C8A45D]">{t("opceo.framework.workflow.eyebrow")}</p>
+      <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">{t("opceo.framework.workflow.title")}</h1>
+      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#9CA8A8]">{t("opceo.framework.workflow.description")}</p>
 
       <DashboardSection title="Workflow Engine">
         <DashboardCard title="Workflows" value={String(workflowEngine.workflows.length)} description="Workflow manifests registered through the centralized Workflow Registry." />

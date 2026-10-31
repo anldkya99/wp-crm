@@ -21,6 +21,17 @@ enum PlatformRole {
   OPERATOR
 }
 
+enum ModuleOptionStatus {
+  ACTIVE
+  DISABLED
+  ARCHIVED
+}
+
+enum ModuleOptionScope {
+  PLATFORM
+  COMPANY
+}
+
 enum UserStatus {
   ACTIVE
   PASSIVE
@@ -121,6 +132,7 @@ model Company {
   configurationVersions ConfigurationVersion[]
   permissionGrants CompanyPermissionGrant[]
   auditLogs       CompanyAuditLog[]
+  moduleOptions   ModuleOption[]
 
   @@map("companies")
 }
@@ -257,6 +269,47 @@ model CompanyAuditLog {
   @@index([companyId, createdAt])
   @@index([eventType])
   @@map("company_audit_logs")
+}
+
+model PlatformAuditLog {
+  id           String   @id @default(cuid())
+  actorId      String?  @map("actor_id")
+  eventType    String   @map("event_type")
+  message      String
+  metadataJson Json?    @map("metadata_json")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("platform_audit_logs")
+}
+
+model ModuleOption {
+  id                String             @id @default(cuid())
+  moduleId          String             @map("module_id")
+  optionTypeKey     String             @map("option_type_key")
+  scope             ModuleOptionScope
+  companyId         String?            @map("company_id")
+  key               String
+  displayName       String             @map("display_name")
+  description       String?
+  configurationJson Json               @map("configuration_json")
+  metadataJson      Json?              @map("metadata_json")
+  status            ModuleOptionStatus @default(DISABLED)
+  version           Int                @default(1)
+  sortOrder         Int                @default(0) @map("sort_order")
+  createdById       String?            @map("created_by_id")
+  updatedById       String?            @map("updated_by_id")
+  archivedById      String?            @map("archived_by_id")
+  archivedAt        DateTime?          @map("archived_at")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  company           Company?           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([moduleId, optionTypeKey])
+  @@index([scope, status])
+  @@index([companyId, moduleId, optionTypeKey])
+  @@map("module_options")
 }
 
 model Contact {

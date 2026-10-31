@@ -1,7 +1,9 @@
 import { DashboardCard, DashboardSection } from "@/app/opceo/_components/dashboard-card";
+import { getServerTranslator } from "@/lib/platform/localization/server";
 import { getPlatformRuntime } from "@/lib/platform/runtime/platform-runtime";
 
-export default function RuntimeFoundationPage() {
+export default async function RuntimeFoundationPage() {
+  const t = await getServerTranslator();
   const runtime = getPlatformRuntime();
   const featureFlags = Array.from(
     new Set([
@@ -16,11 +18,9 @@ export default function RuntimeFoundationPage() {
 
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C8A45D]">Platform Runtime</p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">Runtime Foundation</h1>
-      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#9CA8A8]">
-        Execution foundation for resolving registered modules, active capabilities, runtime navigation, metadata, and health.
-      </p>
+      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C8A45D]">{t("opceo.framework.runtime.eyebrow")}</p>
+      <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">{t("opceo.framework.runtime.title")}</h1>
+      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#9CA8A8]">{t("opceo.framework.runtime.description")}</p>
 
       <DashboardSection title="Runtime Metadata">
         <DashboardCard title="Runtime Version" value={services.metadata.runtimeVersion} description="Current foundation runtime contract version." />
